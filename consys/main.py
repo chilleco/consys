@@ -10,8 +10,8 @@ from copy import deepcopy
 from collections import defaultdict
 
 from ..funcs import generate
-from ..funcs.mongodb import db, DuplicateKeyError
-from ..errors import ErrorInvalid, ErrorWrong, ErrorRepeat, ErrorUnsaved
+from .db import db, DuplicateKeyError
+from .errors import ErrorInvalid, ErrorWrong, ErrorRepeat, ErrorUnsaved
 
 
 def _next_id(name):
