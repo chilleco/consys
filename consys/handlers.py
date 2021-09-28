@@ -36,8 +36,7 @@ def check_login(collection, id_, cont):
     """ Login checking """
 
     # Already registered
-    db_condition = {'id': {'$ne': id_}, 'login': cont}
-    if collection.count_documents(db_condition, {'_id': True, 'id': True}):
+    if collection.count_documents({'id': {'$ne': id_}, 'login': cont}):
         return False
 
     # Invalid login
@@ -60,7 +59,7 @@ def check_login(collection, id_, cont):
     return True
 
 # pylint: disable=unused-argument
-def check_password(id_, cont):
+def check_password(collection, id_, cont):
     """ Password checking """
 
     # Invalid password
@@ -81,19 +80,19 @@ def process_password(cont):
     return hashlib.md5(bytes(cont, 'utf-8')).hexdigest()
 
 # pylint: disable=unused-argument
-def check_name(id_, cont):
+def check_name(collection, id_, cont):
     """ Name checking """
 
     return cont.isalpha()
 
 # pylint: disable=unused-argument
-def check_surname(id_, cont):
+def check_surname(collection, id_, cont):
     """ Surname checking """
 
     return cont.replace('-', '').isalpha()
 
 # pylint: disable=unused-argument
-def check_phone(id_, cont):
+def check_phone(collection, id_, cont):
     """ Phone checking """
 
     return 11 <= len(str(cont)) <= 18
@@ -124,8 +123,7 @@ def check_mail(collection, id_, cont):
         return False
 
     # Already registered
-    db_condition = {'id': {'$ne': id_}, 'mail': cont}
-    if collection.count_documents(db_condition, {'_id': False, 'id': True}):
+    if collection.count_documents({'id': {'$ne': id_}, 'mail': cont}):
         return False
 
     return True
