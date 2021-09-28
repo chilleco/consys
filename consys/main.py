@@ -10,7 +10,8 @@ from copy import deepcopy
 from collections import defaultdict
 
 from ..funcs import generate
-from .db import db, DuplicateKeyError
+from ._db import db, DuplicateKeyError
+from .handlers import pre_process_time
 from .errors import ErrorInvalid, ErrorWrong, ErrorRepeat, ErrorUnsaved
 
 
@@ -46,14 +47,6 @@ def _search(value, search):
         return False
 
     return False
-
-def pre_process_time(cont):
-    """ Time pre-processing """
-
-    if isinstance(cont, int):
-        return float(cont)
-
-    return cont
 
 
 class Attribute:
