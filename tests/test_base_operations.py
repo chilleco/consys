@@ -2,12 +2,12 @@ import time
 
 import pytest
 
-from api.models import Base, Attribute
-from api.errors import ErrorWrong
+from . import Base, Attribute
+from consys.errors import ErrorWrong
 
 
 class ObjectModel(Base):
-    _db = 'tests'
+    _name = 'tests'
 
     meta = Attribute(types=str)
     delta = Attribute(types=str, default='')

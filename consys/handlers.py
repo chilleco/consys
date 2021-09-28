@@ -5,7 +5,7 @@ Handlers
 import re
 import hashlib
 
-from ._db import db
+# from ._db import db # TODO: fix
 
 
 RESERVED = {
@@ -39,10 +39,10 @@ def check_login(id_, cont):
 
     # TODO: Get DB name by class
 
-    # Already registered
-    users = db.users.find_one({'login': cont}, {'_id': True, 'id': True})
-    if users and users['id'] != id_:
-        return False
+    # # Already registered
+    # users = db.users.find_one({'login': cont}, {'_id': True, 'id': True})
+    # if users and users['id'] != id_:
+    #     return False
 
     # Invalid login
 

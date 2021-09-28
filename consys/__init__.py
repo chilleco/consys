@@ -2,13 +2,14 @@
 Initializing the Python package
 """
 
-from .main import Base, Attribute
+from .base import Attribute
+from .main import make_base
 
 
 __version__ = '0.1'
 
 __all__ = (
     '__version__',
-    'Base',
     'Attribute',
+    'make_base',
 )

@@ -1,8 +1,8 @@
-from api.models import Base, Attribute
+from . import Base, Attribute
 
 
 class ObjectModel(Base):
-    _db = 'tests'
+    _name = 'tests'
 
     meta = Attribute(types=str)
     delta = Attribute(types=str, default='')
@@ -10,7 +10,7 @@ class ObjectModel(Base):
     multi = Attribute(types=list, default=[])
 
 class SubObject(Base):
-    _db = None
+    _name = None
 
     id = Attribute(types=str)
     taiga = Attribute(types=int)

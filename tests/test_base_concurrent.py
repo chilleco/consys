@@ -1,12 +1,12 @@
 import pytest
 
-from api.funcs.mongodb import db, DuplicateKeyError
-from api.models import Base, Attribute
-from api.errors import ErrorRepeat
+from consys.errors import ErrorRepeat
+from consys._db import DuplicateKeyError
+from . import Base, Attribute
 
 
 class ObjectModel(Base):
-    _db = 'tests'
+    _name = 'tests'
 
     meta = Attribute(types=str)
     delta = Attribute(types=str, default='')
@@ -47,7 +47,7 @@ def test_concurrently_create():
     data = instance.json(default=False)
 
     with pytest.raises(DuplicateKeyError):
-        db[instance._db].insert_one({'_id': instance.id, **data})
+        instance._db[instance._name].insert_one({'_id': instance.id, **data})
 
     instance.reload()
 

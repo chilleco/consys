@@ -1,8 +1,8 @@
-from api.models import Base, Attribute
+from . import Base, Attribute
 
 
 class ObjectModel(Base):
-    _db = 'tests'
+    _name = 'tests'
 
     meta = Attribute(types=str)
     delta = Attribute(types=str, default='')
