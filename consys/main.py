@@ -4,15 +4,19 @@ Base model of DB object
 
 import time
 import json
+import string
+import random
 from abc import abstractmethod
 from typing import Union, Optional, Any, Callable, List, Tuple, Set
 from copy import deepcopy
 from collections import defaultdict
 
-from ..funcs import generate
 from ._db import db, DuplicateKeyError
 from .handlers import pre_process_time
 from .errors import ErrorInvalid, ErrorWrong, ErrorRepeat, ErrorUnsaved
+
+
+SYMBOLS = string.digits + string.ascii_letters
 
 
 def _next_id(name):
@@ -47,6 +51,11 @@ def _search(value, search):
         return False
 
     return False
+
+def generate(length: int = 32) -> str:
+    """ ID generation """
+
+    return ''.join(random.choice(SYMBOLS) for _ in range(length))
 
 
 class Attribute:

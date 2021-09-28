@@ -1,3 +1,7 @@
+"""
+Handlers
+"""
+
 import re
 import hashlib
 
@@ -32,6 +36,8 @@ def default_login(instance):
 
 def check_login(id_, cont):
     """ Login checking """
+
+    # TODO: Get DB name by class
 
     # Already registered
     users = db.users.find_one({'login': cont}, {'_id': True, 'id': True})
