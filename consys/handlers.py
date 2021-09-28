@@ -5,8 +5,6 @@ Handlers
 import re
 import hashlib
 
-# from ._db import db # TODO: fix
-
 
 RESERVED = {
     'admin', 'admins', 'administrator', 'administrators', 'administration',
@@ -34,15 +32,14 @@ def default_login(instance):
 
     return f"id{instance.id}"
 
-def check_login(id_, cont):
+def check_login(collection, id_, cont):
     """ Login checking """
 
-    # TODO: Get DB name by class
-
-    # # Already registered
-    # users = db.users.find_one({'login': cont}, {'_id': True, 'id': True})
-    # if users and users['id'] != id_:
-    #     return False
+    # Already registered
+    db_condition = {'id': {'$ne': id_}, 'login': cont}
+    els = collection.find_one(db_condition, {'_id': True, 'id': True})
+    if els:
+        return False
 
     # Invalid login
 
@@ -120,7 +117,7 @@ def pre_process_phone(cont):
 
     return int(cont)
 
-def check_mail(id_, cont):
+def check_mail(collection, id_, cont):
     """ Mail checking """
 
     # Invalid
@@ -128,8 +125,9 @@ def check_mail(id_, cont):
         return False
 
     # Already registered
-    users = db.users.find_one({'mail': cont}, {'_id': False, 'id': True})
-    if users and users['id'] != id_:
+    db_condition = {'id': {'$ne': id_}, 'mail': cont}
+    els = collection.find_one(db_condition, {'_id': False, 'id': True})
+    if els:
         return False
 
     return True
