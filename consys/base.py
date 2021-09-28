@@ -19,6 +19,7 @@ from .errors import ErrorInvalid, ErrorWrong, ErrorRepeat, ErrorUnsaved
 SYMBOLS = string.digits + string.ascii_letters
 
 
+# pylint: disable=too-many-return-statements
 def _search(value, search):
     """ Search for matches by value """
 
@@ -44,7 +45,6 @@ def _search(value, search):
 
 def _generate(length: int = 32) -> str:
     """ ID generation """
-
     return ''.join(random.choice(SYMBOLS) for _ in range(length))
 
 
@@ -80,6 +80,7 @@ class Attribute:
 
     def __get__(self, instance, owner):
         if not instance:
+            # pylint: disable=isinstance-second-argument-not-valid-type
             if isinstance(self.default, Callable):
                 return self.default(owner)
 
@@ -91,6 +92,7 @@ class Attribute:
         if self.default is not None:
             # NOTE: Otherwise, the auto values will remain after accessing them
             # and will not change after changing the dependent values
+            # pylint: disable=isinstance-second-argument-not-valid-type
             if isinstance(self.default, Callable):
                 return self.default(instance)
 
@@ -114,7 +116,9 @@ class Attribute:
 
             raise TypeError(self.name)
 
-        if self.checking and not self.checking(instance.id, value):
+        if self.checking and not self.checking(
+            instance._coll, instance.id, value,
+        ):
             if self.ignore:
                 return
 
@@ -143,15 +147,22 @@ class BaseModel:
     @abstractmethod
     def _db(self):
         """ Database """
-
         return None
 
     @property
     @abstractmethod
     def _name(self) -> str:
         """ Database name """
-
         return None
+
+    @property
+    def _coll(self):
+        """ Database collection """
+
+        if self._name is None:
+            return None
+
+        return self._db[self._name]
 
     # Loaded fields and values of an instance from DB
     _loaded_values: dict = None
@@ -264,7 +275,8 @@ class BaseModel:
 
         return getattr(self, name) == getattr(data, name)
 
-    def _is_subobject(self, data):
+    @staticmethod
+    def _is_subobject(data):
         """ Checking for subobject
 
         Theoretically, it is object, which has own model, but without DB
@@ -280,6 +292,7 @@ class BaseModel:
 
         return False
 
+    # pylint: disable=too-many-branches
     def _get_changes(self, data):
         loaded = self._loaded_values or {}
 
@@ -320,7 +333,7 @@ class BaseModel:
         if data_push:
             # NOTE: I can't find way to select elements from array
             fields = {'_id': False, **{field: True for field in data_push}}
-            data_prepush = self._db[self._name].find_one({'id': self.id}, fields)
+            data_prepush = self._coll.find_one({'id': self.id}, fields)
 
             for field in data_prepush:
                 for value in data_prepush[field]:
@@ -342,6 +355,7 @@ class BaseModel:
 
         return data_set, data_unset, data_push, data_pull, data_update
 
+    # pylint: disable=too-many-locals
     @classmethod
     def get(
         cls,
@@ -454,6 +468,7 @@ class BaseModel:
 
         return els
 
+    # pylint: disable=too-many-locals
     def save(
         self,
     ):
@@ -478,7 +493,7 @@ class BaseModel:
         that was not loaded from the database (`_loaded_values`)
         """
 
-        exists = self.id and self._db[self._name].count_documents({'id': self.id})
+        exists = self.id and self._coll.count_documents({'id': self.id})
 
         if exists and self._loaded_values is None:
             raise ErrorRepeat(self._name)
@@ -538,7 +553,7 @@ class BaseModel:
             }
             loaded_values['id'] = self.id
 
-            res = self._db[self._name].update_one(loaded_values, db_request)
+            res = self._coll.update_one(loaded_values, db_request)
 
             if not res.modified_count:
                 raise ErrorRepeat(self._name)
@@ -546,7 +561,7 @@ class BaseModel:
             if data_update:
                 for key, value in data_update.items():
                     for el in value:
-                        self._db[self._name].update_one(
+                        self._coll.update_one(
                             {'id': self.id, f'{key}.id': el['id']},
                             {'$set': {f'{key}.$': el}}
                         )
@@ -568,7 +583,7 @@ class BaseModel:
         data = self.json(default=False)
 
         try:
-            self._db[self._name].insert_one({'_id': self.id, **data})
+            self._coll.insert_one({'_id': self.id, **data})
         except DuplicateKeyError as e:
             raise ErrorRepeat(self._name) from e
 
@@ -580,7 +595,7 @@ class BaseModel:
     ):
         """ Delete the instance """
 
-        res = self._db[self._name].delete_one({'id': self.id}).deleted_count
+        res = self._coll.delete_one({'id': self.id}).deleted_count
 
         if not res:
             raise ErrorWrong('id')
@@ -595,13 +610,13 @@ class BaseModel:
         After calling this function, all unsaved instance data will be erased
         """
 
-        if not self._db[self._name].count_documents({'id': self.id}):
+        if not self._coll.count_documents({'id': self.id}):
             raise ErrorUnsaved('id')
 
         # Update time
         self.updated = time.time()
 
-        self._db[self._name].update_one(
+        self._coll.update_one(
             {'id': self.id},
             {
                 '$set': {'updated': self.updated},
@@ -612,7 +627,7 @@ class BaseModel:
         self.reload()
 
         if self._is_default(field):
-            self._db[self._name].update_one(
+            self._coll.update_one(
                 {'id': self.id},
                 {'$unset': {field: ''}}
             )

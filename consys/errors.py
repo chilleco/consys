@@ -10,6 +10,8 @@ class BaseError(Exception):
     def __init__(self, field):
         self.txt = field
 
+        super().__init__()
+
 class ErrorSpecified(BaseError):
     """ Not all parameters """
 

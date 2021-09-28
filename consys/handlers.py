@@ -37,8 +37,7 @@ def check_login(collection, id_, cont):
 
     # Already registered
     db_condition = {'id': {'$ne': id_}, 'login': cont}
-    els = collection.find_one(db_condition, {'_id': True, 'id': True})
-    if els:
+    if collection.count_documents(db_condition, {'_id': True, 'id': True}):
         return False
 
     # Invalid login
@@ -126,8 +125,7 @@ def check_mail(collection, id_, cont):
 
     # Already registered
     db_condition = {'id': {'$ne': id_}, 'mail': cont}
-    els = collection.find_one(db_condition, {'_id': False, 'id': True})
-    if els:
+    if collection.count_documents(db_condition, {'_id': False, 'id': True}):
         return False
 
     return True
