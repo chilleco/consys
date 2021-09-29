@@ -14,6 +14,7 @@ class ObjectModel(Base):
     extra = Attribute(types=str, default=lambda instance: f'u{instance.delta}o')
     teta = Attribute(types=str, ignore=True)
     multi = Attribute(types=list, default=[])
+    pompa = Attribute()
 
 
 def test_attr():
@@ -130,6 +131,7 @@ def test_init_print():
         'extra': 'uo',
         'teta': None,
         'multi': [1, 2, 3],
+        'pompa': None,
         'status': None,
         'user': 0,
         'created': instance.created,
@@ -156,3 +158,8 @@ def test_ignore():
     # Ignore in case of an error during assignment
     with pytest.raises(TypeError):
         instance.meta = 1
+
+def test_multi_type():
+    instance = ObjectModel(pompa='onigiri')
+    instance.pompa = 0
+    instance.pompa = {'ola': 'ulu'}

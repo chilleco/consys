@@ -61,7 +61,7 @@ class Attribute:
 
     def __init__(
         self,
-        types,
+        types=None,
         default=None,
         checking=None,
         pre_processing=None,
@@ -110,7 +110,7 @@ class Attribute:
         if self.pre_processing:
             value = self.pre_processing(value)
 
-        if not isinstance(value, self.types):
+        if self.types is not None and not isinstance(value, self.types):
             if self.ignore:
                 return
 
