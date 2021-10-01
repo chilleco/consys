@@ -23,7 +23,7 @@ class FileUploader:
         self.prefix = prefix
         self.side_optimized = side_optimized
 
-    def get_file(self, url, num):
+    def get_name(self, url, num):
         """ Check existence the file by name """
 
         for i in os.listdir(f'{self.path}{url}/'):
@@ -33,8 +33,8 @@ class FileUploader:
         return None
 
     @staticmethod
-    def max_image(url):
-        """ Next image ID """
+    def max_name(url):
+        """ Next file ID """
 
         files = os.listdir(url)
         count = 0
@@ -47,7 +47,7 @@ class FileUploader:
         return count+1
 
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    def load_image(self, data, encoding='base64', file_format='png'):
+    def image(self, data, encoding='base64', file_format='png'):
         """ Upload image """
 
         if data is None:
@@ -74,7 +74,7 @@ class FileUploader:
             except (AttributeError, binascii.Error) as e:
                 raise ErrorUpload('image') from e
 
-        file_id = self.max_image(url)
+        file_id = self.max_name(url)
         offset = '0' * max(0, 10-len(str(file_id)))
         payload = ''.join(
             random.choice(string.ascii_lowercase)
@@ -164,7 +164,7 @@ class FileUploader:
             )
 
             meta_first, meta_last = meta_fragment.span()
-            data = self.load_image(meta_fragment.group())
+            data = self.image(meta_fragment.group())
             text = text[:first+meta_first] \
                 + self.prefix + data \
                 + text[first+meta_last:]
@@ -200,9 +200,7 @@ class FileUploader:
             else:
                 file_format = None
 
-            data = self.load_image(
-                data, encoding='bytes', file_format=file_format
-            )
+            data = self.image(data, encoding='bytes', file_format=file_format)
             text = (
                 text[:first+meta_first]
                 + self.prefix + data
