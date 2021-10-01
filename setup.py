@@ -46,7 +46,9 @@ setup(
     packages=find_packages(exclude=('tests',)),
     python_requires='>=3.7, <4',
     install_requires=[
-        'pymongo',
+        'pymongo==3.12.0',
+        'Pillow==8.3.2',
+        'requests==2.26.0',
     ],
     project_urls={
         'Source': 'https://github.com/kosyachniy/consys',
