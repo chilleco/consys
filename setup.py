@@ -49,6 +49,7 @@ setup(
         'pymongo==3.12.0',
         'Pillow==8.3.2',
         'requests==2.26.0',
+        'pydantic==1.8.2',
     ],
     project_urls={
         'Source': 'https://github.com/kosyachniy/consys',
