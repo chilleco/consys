@@ -40,6 +40,9 @@ def test_load():
     assert recieved.delta == 'hinkali'
     assert recieved.extra == 'ramen'
 
+def test_load_unknown():
+    assert ObjectModel.get(delta='ola') == []
+
 def test_list():
     now = time.time()
 
