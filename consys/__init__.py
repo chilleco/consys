@@ -2,7 +2,7 @@
 Initializing the Python package
 """
 
-from .base import Attribute
+from .model import Attribute
 from .main import make_base
 
 
