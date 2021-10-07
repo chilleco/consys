@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - "3.9"
+
+services:
+  - mongodb
+
+install:
+  - make setup-tests
+
+script:
+  - make test-unit-all
+  - make test-linter-all
