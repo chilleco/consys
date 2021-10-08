@@ -1,5 +1,9 @@
 [MASTER]
 jobs=2
+; extension-pkg-whitelist=pydantic
+
+[MESSAGES CONTROL]
+disable=import-error
 
 [FORMAT]
 max-line-length=80

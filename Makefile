@@ -53,3 +53,11 @@ clean:
 	rm -rf build/
 	rm -rf dist/
 	rm -rf *.egg-info/
+
+clear:
+	rm -rf env/
+	rm -rf **/env/
+	rm -rf __pycache__/
+	rm -rf **/__pycache__/
+	rm -rf .pytest_cache/
+	rm -rf **/.pytest_cache/
