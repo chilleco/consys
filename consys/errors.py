@@ -14,12 +14,10 @@ class BaseError(Exception):
 
 class ErrorSpecified(BaseError):
     """ Not all parameters """
-
     code = 4
 
 class ErrorBusy(BaseError):
     """ Busy """
-
     code = 5
 
 class ErrorInvalid(BaseError):
@@ -38,50 +36,40 @@ class ErrorWrong(BaseError):
 
 class ErrorUpload(BaseError):
     """ Uploading to the server """
-
     code = 8
 
 class ErrorAccess(BaseError):
     """ No rights """
-
     code = 9
 
 class ErrorEmpty(BaseError):
     """ Nothing to display """
-
     code = 10
 
 class ErrorEnough(BaseError):
     """ Not enough """
-
     code = 11
 
 class ErrorBlock(BaseError):
     """ Blocked """
-
     code = 12
 
 class ErrorType(BaseError):
     """ Incorrect data type """
-
     code = 13
 
 class ErrorCount(BaseError):
     """ Quantity limit """
-
     code = 14
 
 class ErrorRepeat(BaseError): # TODO: Already / Duplicate
     """ Duplicate """
-
     code = 15
 
 class ErrorTime(BaseError):
     """ Time expired """
-
     code = 16
 
 class ErrorUnsaved(BaseError):
     """ The object has not been saved yet """
-
     code = 17

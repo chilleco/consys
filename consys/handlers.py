@@ -29,15 +29,11 @@ def pre_process_time(cont):
 
 def default_login(instance):
     """ Default login value """
-
     return f"id{instance.id}"
 
+# pylint: disable=unused-argument
 def check_login(collection, id_, cont):
     """ Login checking """
-
-    # Already registered
-    if collection.count_documents({'id': {'$ne': id_}, 'login': cont}):
-        return False
 
     # Invalid login
 
@@ -54,6 +50,19 @@ def check_login(collection, id_, cont):
     cond_reserved = cont in RESERVED
 
     if cond_id or cond_reserved:
+        return False
+
+    return True
+
+def check_login_uniq(collection, id_, cont):
+    """ Uniq login checking """
+
+    # Invalid
+    if not check_login(collection, id_, cont):
+        return False
+
+    # Already registered
+    if collection.count_documents({'id': {'$ne': id_}, 'login': cont}):
         return False
 
     return True
@@ -76,34 +85,44 @@ def check_password(collection, id_, cont):
 
 def process_password(cont):
     """ Password processing """
-
     return hashlib.md5(bytes(cont, 'utf-8')).hexdigest()
 
 # pylint: disable=unused-argument
 def check_name(collection, id_, cont):
     """ Name checking """
-
     return cont.isalpha()
 
 # pylint: disable=unused-argument
 def check_surname(collection, id_, cont):
     """ Surname checking """
-
     return cont.replace('-', '').isalpha()
 
 # pylint: disable=unused-argument
 def check_phone(collection, id_, cont):
     """ Phone checking """
-
     return 11 <= len(str(cont)) <= 18
+
+# pylint: disable=unused-argument
+def check_phone_uniq(collection, id_, cont):
+    """ Uniq phone checking """
+
+    # Invalid
+    if not check_phone(collection, id_, cont):
+        return False
+
+    # Already registered
+    if collection.count_documents({'id': {'$ne': id_}, 'phone': cont}):
+        return False
+
+    return True
 
 def pre_process_phone(cont):
     """ Phone number pre-processing """
 
-    cont = str(cont)
-
     if not cont:
         return 0
+
+    cont = str(cont)
 
     if cont[0] == '8':
         cont = '7' + cont[1:]
@@ -115,11 +134,16 @@ def pre_process_phone(cont):
 
     return int(cont)
 
+# pylint: disable=unused-argument
 def check_mail(collection, id_, cont):
     """ Mail checking """
+    return re.match(r'.+@.+\..+', cont) is not None
+
+def check_mail_uniq(collection, id_, cont):
+    """ Uniq mail checking """
 
     # Invalid
-    if re.match(r'.+@.+\..+', cont) is None:
+    if not check_mail(collection, id_, cont):
         return False
 
     # Already registered
@@ -130,12 +154,10 @@ def check_mail(collection, id_, cont):
 
 def process_title(cont):
     """ Make a value with a capital letter """
-
     return cont.title()
 
 def process_lower(cont):
     """ Make the value in lowercase """
-
     return cont.lower()
 
 def default_status(instance):

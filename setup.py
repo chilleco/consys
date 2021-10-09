@@ -42,7 +42,10 @@ setup(
         'Programming Language :: Python :: 3',
         'Operating System :: OS Independent',
     ],
-    keywords='base, object, model, oop, orm, python, mongodb',
+    keywords=(
+        'base, object, model, oop, orm, python, mongodb, files, uploading, '
+        'handlers, errors, types, checking'
+    ),
     packages=find_packages(exclude=('tests',)),
     python_requires='>=3.7, <4',
     install_requires=[
