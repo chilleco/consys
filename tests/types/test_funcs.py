@@ -13,12 +13,12 @@ class Type(BaseType):
     actions: Optional[list[dict]]
 
 @validate(Type)
-def handle(this, request, data):
+def handle(request, data):
     return data
 
 
 def test_processing():
-    data = handle(None, None, {
+    data = handle(None, {
         'id': '1',
         'login': '\t\nadmin  ',
         'password': '',
@@ -29,7 +29,7 @@ def test_processing():
     assert data.password == ''
 
 def test_types():
-    handle(None, None, {
+    handle(None, {
         'id': 1,
         'login': 'admin',
         'actions': [{
@@ -41,13 +41,13 @@ def test_types():
 
 def test_wrong_type():
     with pytest.raises(ErrorType):
-        handle(None, None, {
+        handle(None, {
             'id': [],
             'login': '',
         })
 
 def test_wrong_field():
-    data = handle(None, None, {
+    data = handle(None, {
         'id': True,
         'login': '',
         'data': 'test',
@@ -57,6 +57,6 @@ def test_wrong_field():
 
 def test_no_required():
     with pytest.raises(ErrorSpecified):
-        handle(None, None, {
+        handle(None, {
             'id': 1,
         })

@@ -49,10 +49,10 @@ def validate(filters):
 
     def decorator(f):
         @wraps(f)
-        def wrapper(this, request, data):
+        def wrapper(request, data):
             _strip(data)
             data = _check(data, filters)
-            return f(this, request, data)
+            return f(request, data)
         return wrapper
     return decorator
 

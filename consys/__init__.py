@@ -6,7 +6,7 @@ from .model import Attribute
 from .main import make_base
 
 
-__version__ = '0.7'
+__version__ = '0.8'
 
 __all__ = (
     '__version__',
