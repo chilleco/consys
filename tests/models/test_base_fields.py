@@ -49,22 +49,22 @@ def test_save_none_with_fields():
 
 def test_save_data_with_fields():
     instance = ObjectModel(
-        name='test_save_fields',
+        title='test_save_fields',
         meta='onigiri',
         delta='hinkali',
     )
 
     instance.save()
-    recieved1 = ObjectModel.get(ids=instance.id, fields={'name', 'delta'})
+    recieved1 = ObjectModel.get(ids=instance.id, fields={'title', 'delta'})
 
-    recieved1.name = None
+    recieved1.title = None
     recieved1.delta = 'hacapuri'
 
     recieved1.save()
     recieved2 = ObjectModel.get(ids=instance.id)
 
     assert recieved2.id == instance.id
-    assert recieved2.name == 'test_save_fields'
+    assert recieved2.title == 'test_save_fields'
     assert recieved2.meta == 'onigiri'
     assert recieved2.delta == 'hacapuri'
     assert recieved2.extra == 'uhacapurio'
@@ -75,7 +75,7 @@ def test_reload_with_fields():
     # now = time.time()
 
     instance = ObjectModel(
-        name='test_reload_fields',
+        title='test_reload_fields',
         meta='onigiri',
         delta='hinkali',
         multi=[1, 2, 3],
@@ -107,7 +107,7 @@ def test_reload_with_fields():
         'multi',
     }
     assert recieved.id == instance.id
-    assert recieved.name is None
+    assert recieved.title is None
     assert recieved.meta == 'onigiri'
     assert recieved.delta == '' # default
     assert recieved.extra == 'uo' # default

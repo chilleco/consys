@@ -24,7 +24,7 @@ def test_attr():
     instance = ObjectModel()
 
     assert instance.id == 0
-    assert instance.name is None
+    assert instance.title is None
     assert instance.user == 0
     assert instance.created < now + 1
     assert instance.updated is None
@@ -41,7 +41,7 @@ def test_item():
     instance = ObjectModel()
 
     assert instance['id'] == 0
-    assert instance['name'] is None
+    assert instance['title'] is None
     assert instance['user'] == 0
     assert instance['created'] < now + 1
     assert instance['updated'] is None
@@ -57,7 +57,7 @@ def test_data():
     now = time.time()
     instance = ObjectModel({
         'id': 1,
-        'name': 'test_data',
+        'title': 'test_data',
         'user': 2,
         'status': 3,
         'meta': 'onigiri',
@@ -66,7 +66,7 @@ def test_data():
     })
 
     assert instance.id == 1
-    assert instance.name == 'test_data'
+    assert instance.title == 'test_data'
     assert instance.created < now + 1
     assert instance.user == 2
     assert instance.status == 3
@@ -78,7 +78,7 @@ def test_kwargs():
     now = time.time()
     instance = ObjectModel(
         id=1,
-        name='test_kwargs',
+        title='test_kwargs',
         user=2,
         status=3,
         meta='oNiGiRi',
@@ -87,7 +87,7 @@ def test_kwargs():
     )
 
     assert instance.id == 1
-    assert instance.name == 'test_kwargs'
+    assert instance.title == 'test_kwargs'
     assert instance.created < now + 1
     assert instance.user == 2
     assert instance.status == 3
@@ -106,7 +106,7 @@ def test_create_empty():
 
 def test_create():
     instance = ObjectModel(
-        name='test_create',
+        title='test_create',
         meta='onigiri',
     )
 
@@ -127,7 +127,8 @@ def test_init_print():
     assert text[-1] == ')'
     assert json.loads(text[19:-1]) == {
         'id': 0,
-        'name': None,
+        'title': None,
+        'data': None,
         'meta': 'onigiri',
         'delta': '',
         'extra': 'uo',

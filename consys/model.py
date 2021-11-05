@@ -139,7 +139,8 @@ class BaseModel:
     """ Base model """
 
     id = Attribute(types=int, default=0) # TODO: unique
-    name = Attribute(types=str) # TODO: required
+    title = Attribute(types=str) # TODO: required
+    data = Attribute()
     user = Attribute(types=int, default=0)
     created = Attribute(types=float)
     updated = Attribute(types=float)

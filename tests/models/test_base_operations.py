@@ -18,7 +18,7 @@ class ObjectModel(Base):
 def test_load():
     now = time.time()
     instance = ObjectModel(
-        name='test_load',
+        title='test_load',
         user=2,
         status=3,
         meta='onigiri',
@@ -31,7 +31,7 @@ def test_load():
 
     assert isinstance(recieved, ObjectModel)
     assert recieved.id == instance.id
-    assert recieved.name == 'test_load'
+    assert recieved.title == 'test_load'
     assert instance.created < now + 1
     assert instance.updated < now + 1
     assert instance.user == 2
@@ -47,7 +47,7 @@ def test_list():
     now = time.time()
 
     instance1 = ObjectModel(
-        name='test_list',
+        title='test_list',
         user=2,
         status=3,
         meta='onigiri',
@@ -69,7 +69,7 @@ def test_list():
     with recieved[1] as recieved1:
         assert isinstance(recieved1, ObjectModel)
         assert recieved1.id == instance1.id
-        assert recieved1.name == 'test_list'
+        assert recieved1.title == 'test_list'
         assert recieved1.created < now + 1
         assert recieved1.updated < now + 1
         assert recieved1.user == 2
@@ -86,19 +86,19 @@ def test_list():
 
 def test_update():
     instance = ObjectModel(
-        name='test_create',
+        title='test_create',
         delta='hinkali',
     )
     instance.save()
 
-    assert instance.name == 'test_create'
+    assert instance.title == 'test_create'
     assert instance.meta is None
     assert instance.delta == 'hinkali'
 
     instance_id = instance.id
     instance = ObjectModel.get(ids=instance_id)
 
-    instance.name = 'test_update'
+    instance.title = 'test_update'
     instance.meta = 'onigiri'
 
     instance.save()
@@ -107,24 +107,24 @@ def test_update():
 
     instance = ObjectModel.get(ids=instance.id)
 
-    assert instance.name == 'test_update'
+    assert instance.title == 'test_update'
     assert instance.meta == 'onigiri'
     assert instance.delta == 'hinkali'
 
 def test_update_empty():
     instance = ObjectModel(
-        name='test_create',
+        title='test_create',
         meta='onigiri',
     )
     instance.save()
 
-    assert instance.name == 'test_create'
+    assert instance.title == 'test_create'
     assert instance.meta == 'onigiri'
 
     instance_id = instance.id
     instance = ObjectModel.get(ids=instance_id)
 
-    instance.name = None
+    instance.title = None
 
     instance.save()
 
@@ -132,19 +132,19 @@ def test_update_empty():
 
     instance = ObjectModel.get(ids=instance.id)
 
-    assert instance.name == 'test_create'
+    assert instance.title == 'test_create'
     assert instance.meta == 'onigiri'
 
 def test_update_resave():
     instance = ObjectModel(
-        name='test_create',
+        title='test_create',
         delta='hinkali'
     )
     instance.save()
 
     instance_id = instance.id
 
-    instance.name = 'test_update'
+    instance.title = 'test_update'
     instance.meta = 'onigiri'
     instance.save()
 
@@ -152,7 +152,7 @@ def test_update_resave():
 
     instance = ObjectModel.get(ids=instance.id)
 
-    assert instance.name == 'test_update'
+    assert instance.title == 'test_update'
     assert instance.meta == 'onigiri'
     assert instance.delta == 'hinkali'
 
@@ -191,7 +191,7 @@ def test_rm_attr():
 
 def test_rm_attr_resave():
     instance = ObjectModel(
-        name='test_attr_resave',
+        title='test_attr_resave',
         meta='onigiri',
         delta='hinkali',
     )
@@ -203,7 +203,7 @@ def test_rm_attr_resave():
     instance.save()
     instance = ObjectModel.get(ids=instance.id)
 
-    assert instance.name == 'test_attr_resave'
+    assert instance.title == 'test_attr_resave'
     assert instance.meta is None
     assert instance.delta == 'hacapuri'
 

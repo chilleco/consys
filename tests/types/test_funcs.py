@@ -10,7 +10,7 @@ class Type(BaseType):
     id: Optional[int]
     login: str
     password: Optional[str]
-    actions: Optional[list[dict]]
+    actions: Optional[list]
 
 @validate(Type)
 def handle(request, data):
@@ -33,9 +33,9 @@ def test_types():
         'id': 1,
         'login': 'admin',
         'actions': [{
-            'name': 'sign_up',
+            'title': 'sign_up',
         }, {
-            'name': 'sign_in',
+            'title': 'sign_in',
         }],
     })
 
