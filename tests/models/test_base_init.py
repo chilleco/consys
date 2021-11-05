@@ -15,6 +15,8 @@ class ObjectModel(Base):
     teta = Attribute(types=str, ignore=True)
     multi = Attribute(types=list, default=[])
     pompa = Attribute()
+    tulpa = Attribute(types=int)
+    rampa = Attribute(types=int, ignore=True)
 
 
 def test_attr():
@@ -132,32 +134,44 @@ def test_init_print():
         'teta': None,
         'multi': [1, 2, 3],
         'pompa': None,
+        'tulpa': None,
+        'rampa': None,
         'status': None,
         'user': 0,
         'created': instance.created,
         'updated': None,
+        'expired': None,
     }
+
+def test_change_type():
+    # Initialization
+    instance = ObjectModel(meta=1)
+    assert instance.meta == '1'
+
+    # Changing
+    instance.meta = [1, 2, 3]
+    assert instance.meta == '[1, 2, 3]'
 
 def test_ignore():
     # Initialization error
     with pytest.raises(TypeError):
-        ObjectModel(meta=1)
+        ObjectModel(tulpa='onigiri')
 
     # Ignore in case of an error during initialization
-    instance = ObjectModel(teta=1)
-    assert instance.teta is None
+    instance = ObjectModel(rampa='onigiri')
+    assert instance.rampa is None
 
     # Ignore in case of an error during assignment
-    instance.teta = 1
-    assert instance.teta is None
+    instance.rampa = 'onigiri'
+    assert instance.rampa is None
 
     # Ignore in case of an error during initialization
-    instance = ObjectModel(ignore={'meta'}, meta=1)
-    assert instance.meta is None
+    instance = ObjectModel(ignore={'tulpa'}, tulpa='onigiri')
+    assert instance.tulpa is None
 
     # Ignore in case of an error during assignment
     with pytest.raises(TypeError):
-        instance.meta = 1
+        instance.tulpa = 'onigiri'
 
 def test_multi_type():
     instance = ObjectModel(pompa='onigiri')

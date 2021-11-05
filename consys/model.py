@@ -12,7 +12,6 @@ from copy import deepcopy
 from collections import defaultdict
 
 from ._db import DuplicateKeyError
-from .handlers import pre_process_time
 from .errors import ErrorInvalid, ErrorWrong, ErrorRepeat, ErrorUnsaved
 
 
@@ -111,10 +110,13 @@ class Attribute:
             value = self.pre_processing(value)
 
         if self.types is not None and not isinstance(value, self.types):
-            if self.ignore:
-                return
+            try:
+                value = self.types(value)
+            except ValueError as e:
+                if self.ignore:
+                    return
 
-            raise TypeError(self.name)
+                raise TypeError(self.name) from e
 
         if self.checking and not self.checking(
             instance._coll, instance.id, value,
@@ -139,8 +141,9 @@ class BaseModel:
     id = Attribute(types=int, default=0) # TODO: unique
     name = Attribute(types=str) # TODO: required
     user = Attribute(types=int, default=0)
-    created = Attribute(types=float, pre_processing=pre_process_time)
-    updated = Attribute(types=float, pre_processing=pre_process_time)
+    created = Attribute(types=float)
+    updated = Attribute(types=float)
+    expired = Attribute(types=float)
     status = Attribute(types=int)
 
     @property

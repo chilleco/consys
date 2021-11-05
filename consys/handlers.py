@@ -19,14 +19,6 @@ RESERVED = {
 }
 
 
-def pre_process_time(cont):
-    """ Time pre-processing """
-
-    if isinstance(cont, int):
-        return float(cont)
-
-    return cont
-
 def default_login(instance):
     """ Default login value """
     return f"id{instance.id}"
