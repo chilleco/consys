@@ -139,8 +139,8 @@ class BaseModel:
     """ Base model """
 
     id = Attribute(types=int, default=0) # TODO: unique
-    title = Attribute(types=str) # TODO: required
-    data = Attribute()
+    title = Attribute(types=str, default='') # TODO: required
+    data = Attribute(types=str, default='')
     user = Attribute(types=int, default=0)
     created = Attribute(types=float)
     updated = Attribute(types=float)
@@ -179,35 +179,35 @@ class BaseModel:
 
     def __init__(
         self,
-        data: dict = None,
-        fields: set = None,
-        ignore: set = None,
+        arg_data: dict = None,
+        arg_fields: set = None,
+        arg_ignore: set = None,
         **kwargs,
     ) -> None:
-        if ignore is None:
-            ignore = self._ignore_fields
+        if arg_ignore is None:
+            arg_ignore = self._ignore_fields
 
-        if not data:
-            data = kwargs
+        if not arg_data:
+            arg_data = kwargs
 
         # Save the loaded values from DB for further saving only changed ones
-        if fields is not None:
-            self._loaded_values = deepcopy(data)
-            self._specified_fields = fields or None
+        if arg_fields is not None:
+            self._loaded_values = deepcopy(arg_data)
+            self._specified_fields = arg_fields or None
 
         # Autocomplete
         # NOTE: Instead of `Attribute(auto=...)`
         # NOTE: Will be added only if it is not a loaded instance
-        if fields is None:
+        if arg_fields is None:
             self.created = time.time()
 
         # Subobject
-        if data.get('id', None) is None and self._name is None:
-            data['id'] = _generate()
+        if arg_data.get('id', None) is None and self._name is None:
+            arg_data['id'] = _generate()
 
-        for name, value in data.items():
+        for name, value in arg_data.items():
             try:
-                if fields is not None:
+                if arg_fields is not None:
                     # Without fields checking & processing
                     self.__dict__[name] = value
                 else:
@@ -215,7 +215,7 @@ class BaseModel:
                     setattr(self, name, value)
 
             except Exception as e:
-                if name in ignore:
+                if name in arg_ignore:
                     continue
 
                 raise e
@@ -451,8 +451,8 @@ class BaseModel:
         # NOTE: `fields={}` to not confuse unloaded and loaded with fields
         # NOTE: `fields` can't be partially loaded with `{}`, only `{'id'}`
         els = list(map(lambda el: cls(
-            data=el,
-            fields=fields or {},
+            arg_data=el,
+            arg_fields=fields or {},
         ), els))
 
         # Leave requested attributes, clear of unnecessary ones:

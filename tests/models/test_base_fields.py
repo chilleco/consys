@@ -107,7 +107,7 @@ def test_reload_with_fields():
         'multi',
     }
     assert recieved.id == instance.id
-    assert recieved.title is None
+    assert recieved.title == ''
     assert recieved.meta == 'onigiri'
     assert recieved.delta == '' # default
     assert recieved.extra == 'uo' # default

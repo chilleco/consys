@@ -25,7 +25,7 @@ def test_attr():
     instance = ObjectModel()
 
     assert instance.id == 0
-    assert instance.title is None
+    assert instance.title == ''
     assert instance.user == 0
     assert instance.created < now + 1
     assert instance.updated is None
@@ -42,7 +42,7 @@ def test_item():
     instance = ObjectModel()
 
     assert instance['id'] == 0
-    assert instance['title'] is None
+    assert instance['title'] == ''
     assert instance['user'] == 0
     assert instance['created'] < now + 1
     assert instance['updated'] is None
@@ -128,8 +128,8 @@ def test_init_print():
     assert text[-1] == ')'
     assert json.loads(text[19:-1]) == {
         'id': 0,
-        'title': None,
-        'data': None,
+        'title': '',
+        'data': '',
         'meta': 'onigiri',
         'delta': '',
         'extra': 'uo',
@@ -168,7 +168,7 @@ def test_ignore():
     assert instance.rampa is None
 
     # Ignore in case of an error during initialization
-    instance = ObjectModel(ignore={'tulpa'}, tulpa='onigiri')
+    instance = ObjectModel(arg_ignore={'tulpa'}, tulpa='onigiri')
     assert instance.tulpa is None
 
     # Ignore in case of an error during assignment
