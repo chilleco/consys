@@ -116,7 +116,7 @@ class Attribute:
                 if self.ignore:
                     return
 
-                raise TypeError(self.name) from e
+                raise ErrorInvalid(self.name) from e
 
         if self.checking and not self.checking(
             instance._coll, instance.id, value,
@@ -124,7 +124,7 @@ class Attribute:
             if self.ignore:
                 return
 
-            raise ValueError(self.name)
+            raise ErrorInvalid(self.name)
 
         if self.processing:
             value = self.processing(value)
@@ -386,8 +386,11 @@ class BaseModel:
                 db_condition = {
                     'id': ids,
                 }
-        else:
+        elif ids is None:
             db_condition = {}
+
+        else:
+            raise ErrorWrong('id')
 
         if kwargs:
             for key, value in kwargs.items():

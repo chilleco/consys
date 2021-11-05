@@ -152,8 +152,24 @@ def process_lower(cont):
     """ Make the value in lowercase """
     return cont.lower()
 
+def default_title(instance):
+    """ Default title for users """
+
+    if instance.name:
+        text = instance.name
+    else:
+        text = ''
+
+    if instance.surname:
+        if text:
+            text += ' '
+
+        text += instance.surname
+
+    return text
+
 def default_status(instance):
-    """ Default status """
+    """ Default status for users """
 
     if instance.id:
         return 3

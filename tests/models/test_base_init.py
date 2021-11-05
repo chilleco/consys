@@ -4,6 +4,7 @@ import json
 import pytest
 
 from . import Base, Attribute
+from consys.errors import ErrorInvalid
 
 
 class ObjectModel(Base):
@@ -155,7 +156,7 @@ def test_change_type():
 
 def test_ignore():
     # Initialization error
-    with pytest.raises(TypeError):
+    with pytest.raises(ErrorInvalid):
         ObjectModel(tulpa='onigiri')
 
     # Ignore in case of an error during initialization
@@ -171,7 +172,7 @@ def test_ignore():
     assert instance.tulpa is None
 
     # Ignore in case of an error during assignment
-    with pytest.raises(TypeError):
+    with pytest.raises(ErrorInvalid):
         instance.tulpa = 'onigiri'
 
 def test_multi_type():

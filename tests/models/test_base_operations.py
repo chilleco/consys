@@ -40,6 +40,13 @@ def test_load():
     assert recieved.delta == 'hinkali'
     assert recieved.extra == 'ramen'
 
+def test_load_zero():
+    with pytest.raises(ErrorWrong):
+        ObjectModel.get(0)
+
+    with pytest.raises(ErrorWrong):
+        ObjectModel.get([])
+
 def test_load_unknown():
     assert ObjectModel.get(delta='ola') == []
 
