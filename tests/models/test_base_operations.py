@@ -50,6 +50,22 @@ def test_load_zero():
 def test_load_unknown():
     assert ObjectModel.get(delta='ola') == []
 
+def test_system_fields():
+    instance = ObjectModel(
+        title='test_system_fields',
+        meta='onigiri',
+    )
+    instance.save()
+
+    instance = ObjectModel.get(ids=instance.id, fields={})
+    assert instance.json().get('_loaded_values') is None
+
+    instances = ObjectModel.get(search='')
+    assert all(
+        instance.json().get('_loaded_values') is None
+        for instance in instances
+    )
+
 def test_list():
     now = time.time()
 
@@ -256,3 +272,27 @@ def test_resave():
     instance.save()
 
     assert instance.updated == updated
+
+def test_composite():
+    instance = ObjectModel(
+        meta='onigiri',
+        delta='hinkali',
+    )
+
+    instance.save()
+
+    def handler(obj):
+        obj['teta'] = obj['meta'].upper()
+        return obj
+
+    recieved = ObjectModel.composite(
+        ids=instance.id,
+        fields={'id', 'meta'},
+        handler=handler,
+    )
+
+    assert recieved == {
+        'id': instance.id,
+        'meta': 'onigiri',
+        'teta': 'ONIGIRI',
+    }

@@ -691,3 +691,22 @@ class BaseModel:
             raise ErrorUnsaved(e) from e
 
         self.__dict__ = data.__dict__
+
+    @classmethod
+    def composite(
+        cls,
+        handler: Callable,
+        fields: Union[List[str], Tuple[str], Set[str], None] = None,
+        **kwargs,
+    ):
+        """ Use combination of functions """
+
+        instances = cls.get(fields=fields, **kwargs)
+
+        if isinstance(instances, list):
+            for i, instance in enumerate(instances):
+                instances[i] = handler(instance.json(fields=fields))
+
+            return instances
+
+        return handler(instances.json(fields=fields))
