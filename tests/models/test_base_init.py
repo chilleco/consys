@@ -15,6 +15,7 @@ class ObjectModel(Base):
     extra = Attribute(types=str, default=lambda instance: f'u{instance.delta}o')
     teta = Attribute(types=str, ignore=True)
     multi = Attribute(types=list, default=[])
+    exa = Attribute(types=list)
     pompa = Attribute()
     tulpa = Attribute(types=int)
     rampa = Attribute(types=int, ignore=True)
@@ -135,6 +136,7 @@ def test_init_print():
         'extra': 'uo',
         'teta': None,
         'multi': [1, 2, 3],
+        'exa': [],
         'pompa': None,
         'tulpa': None,
         'rampa': None,
@@ -179,3 +181,14 @@ def test_multi_type():
     instance = ObjectModel(pompa='onigiri')
     instance.pompa = 0
     instance.pompa = {'ola': 'ulu'}
+
+def test_without_default():
+    instance = ObjectModel()
+    assert instance.multi == []
+    assert instance.exa == []
+
+    instance.multi.append(1)
+    instance.exa.append('a')
+
+    assert instance.multi == [1]
+    assert instance.exa == ['a']

@@ -74,6 +74,16 @@ class Attribute:
         self.processing = processing
         self.ignore = ignore
 
+        if self.default is None:
+            if self.types == list:
+                self.default = []
+
+            if self.types == dict:
+                self.default = {}
+
+            if self.types == set:
+                self.default = set()
+
     def __set_name__(self, instance, name):
         self.name = name
 
