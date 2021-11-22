@@ -273,7 +273,7 @@ def test_resave():
 
     assert instance.updated == updated
 
-def test_composite():
+def test_complex():
     instance = ObjectModel(
         meta='onigiri',
         delta='hinkali',
@@ -285,7 +285,7 @@ def test_composite():
         obj['teta'] = obj['meta'].upper()
         return obj
 
-    recieved = ObjectModel.composite(
+    recieved = ObjectModel.complex(
         ids=instance.id,
         fields={'id', 'meta'},
         handler=handler,
@@ -296,3 +296,38 @@ def test_composite():
         'meta': 'onigiri',
         'teta': 'ONIGIRI',
     }
+
+def test_to_default():
+    instance = ObjectModel(
+        delta='hinkali',
+        multi=[1, 2, 3],
+    )
+    instance.save()
+
+    instances = ObjectModel.get(delta={'$exists': False}, fields={'id'})
+    assert instance.id not in [i.id for i in instances]
+
+    instances = ObjectModel.get(multi={'$exists': False}, fields={'id'})
+    assert instance.id not in [i.id for i in instances]
+
+    instance.delta = ''
+    instance.save()
+
+    assert instance.delta == ''
+    assert instance.multi == [1, 2, 3]
+
+    instances = ObjectModel.get(delta={'$exists': False}, fields={'id'})
+    assert instance.id in [i.id for i in instances]
+
+    instance = ObjectModel.get(instance.id)
+
+    assert instance.delta == ''
+    assert instance.multi == [1, 2, 3]
+
+    instance.multi = []
+    instance.save()
+
+    assert instance.multi == []
+
+    instances = ObjectModel.get(multi={'$exists': False}, fields={'id'})
+    assert instance.id in [i.id for i in instances]

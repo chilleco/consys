@@ -74,6 +74,8 @@ class Attribute:
         self.processing = processing
         self.ignore = ignore
 
+        # Auto default values
+        # TODO: [{}]
         if self.default is None:
             if self.types == list:
                 self.default = []
@@ -183,7 +185,7 @@ class BaseModel:
     # Specified fields on getting
     _specified_fields: set = None
     # Fields of the class for searching
-    _search_fields: set = {'name'}
+    _search_fields: set = {'title'}
     # Ignored fields in case of an error
     _ignore_fields: set = {}
 
@@ -703,7 +705,7 @@ class BaseModel:
         self.__dict__ = data.__dict__
 
     @classmethod
-    def composite(
+    def complex(
         cls,
         handler: Callable,
         fields: Union[List[str], Tuple[str], Set[str], None] = None,
