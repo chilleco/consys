@@ -2,6 +2,7 @@ import time
 import json
 
 import pytest
+from libdev.gen import generate
 
 from . import Base, Attribute
 from consys.errors import ErrorInvalid
@@ -192,3 +193,12 @@ def test_without_default():
 
     assert instance.multi == [1]
     assert instance.exa == ['a']
+
+def test_first_object_in_collection():
+    class NewModel(Base):
+        _name = generate()
+
+    instance = NewModel(id=1)
+    assert instance.id == 1
+
+    instance.save()

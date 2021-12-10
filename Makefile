@@ -5,8 +5,7 @@ setup:
 	$(PYTHON) -m pip install -r requirements.txt
 
 setup-tests:
-	python3 -m venv env
-	$(PYTHON) -m pip install -r requirements.txt
+	make setup
 	$(PYTHON) -m pip install -r tests/requirements.txt
 
 setup-release:
