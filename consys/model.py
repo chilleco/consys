@@ -371,20 +371,22 @@ class BaseModel:
 
         return data_set, data_unset, data_push, data_pull, data_update
 
-    # pylint: disable=too-many-locals
+    # pylint: disable=too-many-locals,too-many-statements
     @classmethod
     def get(
         cls,
         ids: Union[list, tuple, set, int, str, None] = None,
-        count: Optional[int] = None,
+        count: Optional[int] = None, # TODO: limit
         offset: int = 0,
         search: Optional[str] = None,
         fields: Union[List[str], Tuple[str], Set[str], None] = None,
+        extra: dict = None,
         **kwargs,
     ):
         """ Get instances of the object """
 
         # TODO: key: Callable for complex conditions
+        # TODO: optimize count limit to DB rule
 
         process_one = False
 
@@ -406,6 +408,10 @@ class BaseModel:
 
         if kwargs:
             for key, value in kwargs.items():
+                db_condition[key] = value
+
+        if extra:
+            for key, value in extra.items():
                 db_condition[key] = value
 
         db_filter = {

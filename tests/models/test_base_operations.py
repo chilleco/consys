@@ -13,6 +13,7 @@ class ObjectModel(Base):
     delta = Attribute(types=str, default='')
     extra = Attribute(types=str, default=lambda instance: f'u{instance.delta}o')
     multi = Attribute(types=list, default=[])
+    sodzu = Attribute(types=dict)
 
 
 def test_load():
@@ -49,6 +50,27 @@ def test_load_zero():
 
 def test_load_unknown():
     assert ObjectModel.get(delta='ola') == []
+
+def  test_load_complex_fields():
+    instance = ObjectModel(
+        sodzu={
+            'sake': [
+                'onigiri',
+                'hinkali',
+                'ramen',
+            ]
+        },
+    )
+    instance.save()
+
+    instances = ObjectModel.get(extra=({
+        'sodzu.sake': 'ramen',
+    }))
+    instances = {
+        ins.id: ins for ins in instances
+    }
+
+    assert instances[instance.id]
 
 def test_system_fields():
     instance = ObjectModel(

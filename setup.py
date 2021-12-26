@@ -49,8 +49,8 @@ setup(
     packages=find_packages(exclude=('tests',)),
     python_requires='>=3.7, <4',
     install_requires=[
-        'pymongo==3.12.0',
-        'Pillow==8.3.2',
+        'pymongo==4.0.1',
+        'Pillow==8.4.0',
         'requests==2.26.0',
         'pydantic==1.8.2',
     ],
