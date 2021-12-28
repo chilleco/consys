@@ -63,9 +63,9 @@ def  test_load_complex_fields():
     )
     instance.save()
 
-    instances = ObjectModel.get(extra=({
+    instances = ObjectModel.get(extra={
         'sodzu.sake': 'ramen',
-    }))
+    })
     instances = {
         ins.id: ins for ins in instances
     }

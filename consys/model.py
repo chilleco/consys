@@ -253,7 +253,10 @@ class BaseModel:
             pure = self.json(fields=self._specified_fields)
             prefix = "Partial"
 
-        return f"{prefix}Object {self.__class__.__name__}({json.dumps(pure)})"
+        return (
+            f"{prefix}Object {self.__class__.__name__}"
+            f"({json.dumps(pure, ensure_ascii=False)})"
+        )
 
     def __enter__(self):
         return self

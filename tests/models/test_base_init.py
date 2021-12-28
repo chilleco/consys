@@ -148,6 +148,12 @@ def test_init_print():
         'expired': None,
     }
 
+def test_init_ascii_print():
+    instance = ObjectModel(
+        meta='тундра',
+    )
+    assert 'тундра' in str(instance)
+
 def test_change_type():
     # Initialization
     instance = ObjectModel(meta=1)
