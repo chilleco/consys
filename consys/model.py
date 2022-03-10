@@ -396,7 +396,7 @@ class BaseModel:
         if ids:
             if isinstance(ids, (list, tuple, set)):
                 db_condition = {
-                    'id': {'$in': ids},
+                    'id': {'$in': tuple(ids)},
                 }
             else:
                 process_one = True
@@ -491,8 +491,9 @@ class BaseModel:
 
             return els[0]
 
-        if ids and len(ids) != len(els):
-            raise ErrorWrong('id')
+        # # Not all IDs found
+        # if ids and len(ids) != len(els):
+        #     raise ErrorWrong('id')
 
         return els
 

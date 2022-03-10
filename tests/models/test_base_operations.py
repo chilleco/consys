@@ -1,6 +1,7 @@
 import time
 
 import pytest
+from libdev.gen import generate
 
 from . import Base, Attribute
 from consys.errors import ErrorWrong
@@ -14,6 +15,11 @@ class ObjectModel(Base):
     extra = Attribute(types=str, default=lambda instance: f'u{instance.delta}o')
     multi = Attribute(types=list, default=[])
     sodzu = Attribute(types=dict)
+
+class ObjectModel2(Base):
+    _name = 'tests2'
+
+    id = Attribute(types=str)
 
 
 def test_load():
@@ -353,3 +359,19 @@ def test_to_default():
 
     instances = ObjectModel.get(multi={'$exists': False}, fields={'id'})
     assert instance.id in [i.id for i in instances]
+
+def test_wrong_ids():
+    instance1 = ObjectModel2(id=generate())
+    instance2 = ObjectModel2(id=generate())
+    instance3 = ObjectModel2(id=generate())
+
+    instance1.save()
+    instance3.save()
+
+    instances = ObjectModel2.get({
+        instance1.id,
+        instance2.id,
+        instance3.id,
+    })
+
+    assert len(instances) == 2

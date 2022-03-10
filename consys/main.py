@@ -17,7 +17,6 @@ def make_base(host, name, login=None, password=None):
         @property
         def _name(self) -> str:
             """ Database name """
-
             return None
 
     return Base
