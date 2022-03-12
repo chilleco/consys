@@ -49,10 +49,10 @@ setup(
     packages=find_packages(exclude=('tests',)),
     python_requires='>=3.7, <4',
     install_requires=[
-        'pymongo==4.0.1',
-        'Pillow==8.4.0',
-        'requests==2.26.0',
-        'pydantic==1.8.2',
+        'pymongo==4.0.2',
+        'Pillow==9.0.1',
+        'requests', # Because conflicts with main repo
+        'pydantic==1.9.0',
     ],
     project_urls={
         'Source': 'https://github.com/kosyachniy/consys',
