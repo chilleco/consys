@@ -375,3 +375,13 @@ def test_wrong_ids():
     })
 
     assert len(instances) == 2
+
+def test_get_with_none_field():
+    instance = ObjectModel(meta='hinkali')
+    instance.save()
+
+    instance = ObjectModel.get(
+        ids=instance.id,
+        meta=None,
+    )
+    assert instance

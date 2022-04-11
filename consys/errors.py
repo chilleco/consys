@@ -24,14 +24,12 @@ class ErrorInvalid(BaseError):
     """ Invalid
     Does not pass the criteria
     """
-
     code = 6
 
 class ErrorWrong(BaseError):
     """ Wrong
     Passes the criteria, but is incorrect
     """
-
     code = 7
 
 class ErrorUpload(BaseError):

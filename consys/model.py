@@ -411,6 +411,9 @@ class BaseModel:
 
         if kwargs:
             for key, value in kwargs.items():
+                if value is None:
+                    continue
+
                 db_condition[key] = value
 
         if extra:
