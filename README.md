@@ -4,6 +4,8 @@ Object-oriented programming control system in Python [Base Object Model]
 [GitHub](https://github.com/kosyachniy/consys)
  | [PyPI](https://pypi.org/project/consys/)
 
+[View ORM for PostgreSQL →](https://pypi.org/project/consql/)
+
 ## Submodules
 Module | Description
 ---|----

@@ -168,7 +168,7 @@ class BaseModel:
     @property
     @abstractmethod
     def _name(self) -> str:
-        """ Database name """
+        """ Collection name """
         return None
 
     @property

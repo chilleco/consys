@@ -16,7 +16,7 @@ def make_base(host, name, login=None, password=None):
 
         @property
         def _name(self) -> str:
-            """ Database name """
+            """ Collection name """
             return None
 
     return Base
