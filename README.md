@@ -13,4 +13,4 @@ Module | Description
 ` consys.handlers ` | Ready to use handlers for ORM
 ` consys.files ` | File uploading system
 ` consys.types ` | Type checking system
-` consys.error ` | Set of errors
+` consys.errors ` | Set of errors

@@ -185,7 +185,7 @@ class FileUploader:
 
             meta_first, meta_last = meta_fragment.span()
             link = meta_fragment.group()
-            data = requests.get(link).content
+            data = requests.get(link, timeout=10).content
 
             if '.' in link:
                 file_format = link.split('.')[-1]

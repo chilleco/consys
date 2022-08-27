@@ -22,6 +22,7 @@ keys*
 # Data
 *.log
 *.err
+tests/files/data/
 
 # Libraries
 
