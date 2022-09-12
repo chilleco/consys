@@ -132,6 +132,7 @@ def test_init_print():
         'id': 0,
         'title': '',
         'data': '',
+        'image': None,
         'meta': 'onigiri',
         'delta': '',
         'extra': 'uo',

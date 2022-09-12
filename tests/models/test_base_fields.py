@@ -1,3 +1,5 @@
+import time
+
 from . import Base, Attribute
 
 
@@ -37,6 +39,7 @@ def test_save_none_with_fields():
 
     recieved1.extra = 'ramen'
 
+    time.sleep(1)
     recieved1.save()
     recieved2 = ObjectModel.get(ids=instance.id)
 
@@ -60,6 +63,7 @@ def test_save_data_with_fields():
     recieved1.title = None
     recieved1.delta = 'hacapuri'
 
+    time.sleep(1)
     recieved1.save()
     recieved2 = ObjectModel.get(ids=instance.id)
 

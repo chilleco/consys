@@ -155,9 +155,9 @@ class BaseModel:
     data = Attribute(types=str, default='')
     image = Attribute(types=str) # TODO: handler
     user = Attribute(types=int, default=0)
-    created = Attribute(types=float)
-    updated = Attribute(types=float)
-    expired = Attribute(types=float)
+    created = Attribute(types=int)
+    updated = Attribute(types=int)
+    expired = Attribute(types=int)
     status = Attribute(types=int)
 
     @property
@@ -534,7 +534,7 @@ class BaseModel:
         # Update
         if exists:
             data = self.json(default=False)
-            data['updated'] = time.time()
+            data['updated'] = int(time.time())
 
             # Only changes
             (
@@ -588,7 +588,7 @@ class BaseModel:
 
             res = self._coll.update_one(loaded_values, db_request)
 
-            if not res.modified_count:
+            if not res.modified_count and not set(data_update):
                 raise ErrorRepeat(self._name)
 
             if data_update:
