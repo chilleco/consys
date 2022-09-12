@@ -153,6 +153,7 @@ class BaseModel:
     id = Attribute(types=int, default=0) # TODO: unique
     title = Attribute(types=str, default='') # TODO: required
     data = Attribute(types=str, default='')
+    image = Attribute(types=str) # TODO: handler
     user = Attribute(types=int, default=0)
     created = Attribute(types=float)
     updated = Attribute(types=float)
