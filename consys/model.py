@@ -736,3 +736,27 @@ class BaseModel:
             return instances
 
         return handler(instances.json(fields=fields))
+
+    @classmethod
+    def count(
+        cls,
+        offset: int = 0,
+        extra: dict = None,
+        **kwargs,
+    ):
+        """ Count of instances of the object """
+
+        db_condition = {}
+
+        if kwargs:
+            for key, value in kwargs.items():
+                if value is None:
+                    continue
+
+                db_condition[key] = value
+
+        if extra:
+            for key, value in extra.items():
+                db_condition[key] = value
+
+        return cls._db[cls._name].count_documents(db_condition, skip=offset)

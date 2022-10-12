@@ -385,3 +385,14 @@ def test_get_with_none_field():
         meta=None,
     )
     assert instance
+
+def test_count():
+    assert ObjectModel.count() > 0
+
+    meta = generate()
+    ObjectModel(meta=meta).save()
+    assert ObjectModel.count(meta=meta) == 1
+
+    ObjectModel(meta=meta).save()
+    assert ObjectModel.count(meta=meta) == 2
+    assert ObjectModel.count(meta=meta, offset=1) == 1
