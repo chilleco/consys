@@ -32,7 +32,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/kosyachniy/consys',
     author='Alexey Poloz',
-    author_email='polozhev@mail.ru',
+    author_email='alexypoloz@gmail.com',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
@@ -49,10 +49,10 @@ setup(
     packages=find_packages(exclude=('tests',)),
     python_requires='>=3.7, <4',
     install_requires=[
-        'pymongo==4.2.0',
-        'Pillow==9.2.0',
-        'requests', # Because conflicts with main repo
-        'pydantic==1.9.2',
+        'pymongo==4.3.3',
+        'Pillow==9.4.0',
+        'requests',  # Because of conflicts with main repo
+        'pydantic==1.10.4',
     ],
     project_urls={
         'Source': 'https://github.com/kosyachniy/consys',

@@ -380,7 +380,7 @@ class BaseModel:
     def get(
         cls,
         ids: Union[list, tuple, set, int, str, None] = None,
-        count: Optional[int] = None, # TODO: limit
+        limit: Optional[int] = None,
         offset: int = 0,
         search: Optional[str] = None,
         fields: Union[List[str], Tuple[str], Set[str], None] = None,
@@ -467,7 +467,7 @@ class BaseModel:
         if offset is None:
             offset = 0
 
-        last = count + offset if count else None
+        last = limit + offset if limit else None
         els = els[offset:last]
 
         # `fields` to indicate:
@@ -721,7 +721,7 @@ class BaseModel:
     @classmethod
     def complex(
         cls,
-        handler: Callable,
+        handler: Callable = lambda obj: obj,
         fields: Union[List[str], Tuple[str], Set[str], None] = None,
         **kwargs,
     ):

@@ -1,3 +1,3 @@
-pylint==2.15.0
-pytest==7.1.2
-libdev==0.38
+pylint==2.15.10
+pytest==7.2.0
+libdev==0.44
