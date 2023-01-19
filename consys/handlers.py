@@ -38,7 +38,7 @@ def check_login(collection, id_, cont):
 
     # System reserved
 
-    cond_id = cont[:2] == 'id' and cont[2:].isalpha() and int(cont[2:]) != id_
+    cond_id = cont[:2] == 'id' and cont[2:].isdigit() and int(cont[2:]) != id_
     cond_reserved = cont in RESERVED
 
     if cond_id or cond_reserved:

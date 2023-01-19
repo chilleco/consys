@@ -155,10 +155,11 @@ class BaseModel:
     data = Attribute(types=str, default='')
     image = Attribute(types=str) # TODO: handler
     user = Attribute(types=int, default=0)
+    status = Attribute(types=int)
+    locale = Attribute(types=str)
     created = Attribute(types=int)
     updated = Attribute(types=int)
     expired = Attribute(types=int)
-    status = Attribute(types=int)
 
     @property
     @abstractmethod
