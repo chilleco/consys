@@ -154,9 +154,9 @@ class BaseModel:
     title = Attribute(types=str, default='') # TODO: required
     data = Attribute(types=str, default='')
     image = Attribute(types=str) # TODO: handler
-    user = Attribute(types=int, default=0)
+    user = Attribute(types=int, default=0)  # 0 → unauth
     status = Attribute(types=int)
-    locale = Attribute(types=str)
+    locale = Attribute(types=str)  # None → multi locale
     created = Attribute(types=int)
     updated = Attribute(types=int)
     expired = Attribute(types=int)
@@ -386,6 +386,8 @@ class BaseModel:
         search: Optional[str] = None,
         fields: Union[List[str], Tuple[str], Set[str], None] = None,
         extra: dict = None,
+        sort: str = 'desc',
+        sortby: str = 'id',
         **kwargs,
     ):
         """ Get instances of the object """
@@ -460,10 +462,10 @@ class BaseModel:
                 if match:
                     els.append(el)
 
-            els.sort(key=lambda el: el['id'], reverse=True)
+            els.sort(key=lambda el: el[sortby], reverse=sort == 'desc')
 
         else:
-            els = res.sort('id', -1)
+            els = res.sort(sortby, -1 if sort == 'desc' else 1)
 
         if offset is None:
             offset = 0
