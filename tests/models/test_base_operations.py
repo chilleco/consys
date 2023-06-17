@@ -13,7 +13,7 @@ class ObjectModel(Base):
     meta = Attribute(types=str)
     delta = Attribute(types=str, default='')
     extra = Attribute(types=str, default=lambda instance: f'u{instance.delta}o')
-    multi = Attribute(types=list, default=[])
+    multi = Attribute(types=list)
     sodzu = Attribute(types=dict)
 
 class ObjectModel2(Base):
@@ -396,3 +396,28 @@ def test_count():
     ObjectModel(meta=meta).save()
     assert ObjectModel.count(meta=meta) == 2
     assert ObjectModel.count(meta=meta, offset=1) == 1
+
+def test_resave_changed():
+    instance = ObjectModel(meta='123')
+    instance.save()
+    assert instance.multi == []
+
+    instance = ObjectModel(delta='456')
+    instance.save()
+    assert instance.multi == []
+
+    instance.multi.append(1)
+    assert instance.multi == [1]
+
+    instance.meta = '789'
+    instance.save()
+    assert instance.multi == [1]
+
+    instance.multi.extend([2, 3])
+    instance.multi.append(4)
+    instance.save()
+    assert instance.multi == [1, 2, 3, 4]
+
+    # instance.multi = instance.multi + [5]
+    # instance.save()
+    # assert instance.multi == [1, 2, 3, 4, 5]
