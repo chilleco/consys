@@ -16,6 +16,10 @@ class ObjectModel(Base):
     multi = Attribute(types=list)
     sodzu = Attribute(types=dict)
 
+    @property
+    def teta(self):
+        return self.delta + (self.meta or '')
+
 class ObjectModel2(Base):
     _name = 'tests2'
 
@@ -397,6 +401,14 @@ def test_count():
     assert ObjectModel.count(meta=meta) == 2
     assert ObjectModel.count(meta=meta, offset=1) == 1
 
+def test_get_last():
+    ObjectModel(meta='hinkali', delta='onigiri').save()
+    ObjectModel(meta='hinkali', delta='hacapuri').save()
+
+    last = ObjectModel.get(meta='hinkali', limit=1)
+    assert len(last) == 1
+    assert last[0].delta == 'hacapuri'
+
 def test_resave_changed():
     instance = ObjectModel(meta='123')
     instance.save()
@@ -421,3 +433,25 @@ def test_resave_changed():
     # instance.multi = instance.multi + [5]
     # instance.save()
     # assert instance.multi == [1, 2, 3, 4, 5]
+
+def test_get_resaved():
+    instance = ObjectModel(meta='123')
+    instance.save()
+
+    instance.delta = '456'
+    instance.save()
+
+    instance.multi.append(1)
+    instance.save()
+
+    instance.multi.append(2)
+    instance.save()
+
+    assert ObjectModel.get(instance.id).multi == [1, 2]
+
+def test_proprty():
+    instance = ObjectModel(meta='ulu')
+    instance.save()
+
+    assert instance.teta == 'ulu'
+    instance.save()
