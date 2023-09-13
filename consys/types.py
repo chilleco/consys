@@ -4,8 +4,7 @@ Types checking functionality
 
 from functools import wraps
 
-from pydantic import BaseModel as BaseType
-from pydantic.error_wrappers import ValidationError
+from pydantic import BaseModel as BaseType, ValidationError
 
 from .errors import ErrorSpecified, ErrorType
 

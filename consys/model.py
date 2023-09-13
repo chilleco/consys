@@ -376,7 +376,7 @@ class BaseModel:
 
         return data_set, data_unset, data_push, data_pull, data_update
 
-    # pylint: disable=too-many-locals,too-many-statements
+    # pylint: disable=too-many-locals,too-many-statements,too-many-arguments
     @classmethod
     def get(
         cls,

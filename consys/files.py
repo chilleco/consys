@@ -130,13 +130,13 @@ class FileUploader:
             img = Image.open(url)
 
             if img.size[0] > img.size[1]:
-                hpercent = (self.side_optimized / float(img.size[1]))
+                hpercent = self.side_optimized / float(img.size[1])
                 wsize = int(float(img.size[0]) * float(hpercent))
-                img = img.resize((wsize, self.side_optimized), Image.ANTIALIAS)
+                img = img.resize((wsize, self.side_optimized), 1)
             else:
-                wpercent = (self.side_optimized / float(img.size[0]))
+                wpercent = self.side_optimized / float(img.size[0])
                 hsize = int(float(img.size[1]) * float(wpercent))
-                img = img.resize((self.side_optimized, hsize), Image.ANTIALIAS)
+                img = img.resize((self.side_optimized, hsize), 1)
 
             img.save(url_opt)
 
