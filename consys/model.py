@@ -20,7 +20,7 @@ SYMBOLS = string.digits + string.ascii_letters
 
 # pylint: disable=too-many-return-statements
 def _search(value, search):
-    """ Search for matches by value """
+    """Search for matches by value"""
 
     if isinstance(value, str):
         return search in value.lower()
@@ -42,13 +42,14 @@ def _search(value, search):
 
     return False
 
+
 def _generate(length: int = 32) -> str:
-    """ ID generation """
-    return ''.join(random.choice(SYMBOLS) for _ in range(length))
+    """ID generation"""
+    return "".join(random.choice(SYMBOLS) for _ in range(length))
 
 
 class Attribute:
-    """ Descriptor """
+    """Descriptor"""
 
     name: str = None
     types: Any = None
@@ -131,7 +132,9 @@ class Attribute:
                 raise ErrorInvalid(self.name) from e
 
         if self.checking and not self.checking(
-            instance._coll, instance.id, value,
+            instance._coll,
+            instance.id,
+            value,
         ):
             if self.ignore:
                 return
@@ -147,13 +150,14 @@ class Attribute:
         if self.name in instance.__dict__:
             del instance.__dict__[self.name]
 
-class BaseModel:
-    """ Base model """
 
-    id = Attribute(types=int, default=0) # TODO: unique
-    title = Attribute(types=str, default='') # TODO: required
-    data = Attribute(types=str, default='')
-    image = Attribute(types=str) # TODO: handler
+class BaseModel:
+    """Base model"""
+
+    id = Attribute(types=int, default=0)  # TODO: unique
+    title = Attribute(types=str, default="")  # TODO: required
+    data = Attribute(types=str, default="")
+    image = Attribute(types=str)  # TODO: handler
     user = Attribute(types=int, default=0)  # 0 → unauth
     status = Attribute(types=int)
     locale = Attribute(types=str)  # None → multi locale
@@ -164,18 +168,18 @@ class BaseModel:
     @property
     @abstractmethod
     def _db(self):
-        """ Database """
+        """Database"""
         return None
 
     @property
     @abstractmethod
     def _name(self) -> str:
-        """ Collection name """
+        """Collection name"""
         return None
 
     @property
     def _coll(self):
-        """ Database collection """
+        """Database collection"""
 
         if self._name is None:
             return None
@@ -187,7 +191,7 @@ class BaseModel:
     # Specified fields on getting
     _specified_fields: set = None
     # Fields of the class for searching
-    _search_fields: set = {'title'}
+    _search_fields: set = {"title"}
     # Ignored fields in case of an error
     _ignore_fields: set = {}
 
@@ -216,8 +220,8 @@ class BaseModel:
             self.created = time.time()
 
         # Subobject
-        if arg_data.get('id', None) is None and self._name is None:
-            arg_data['id'] = _generate()
+        if arg_data.get("id", None) is None and self._name is None:
+            arg_data["id"] = _generate()
 
         for name, value in arg_data.items():
             try:
@@ -236,7 +240,7 @@ class BaseModel:
 
     def __setattr__(self, name, value):
         if not hasattr(self, name):
-            raise AttributeError('key')
+            raise AttributeError("key")
 
         super().__setattr__(name, value)
 
@@ -267,28 +271,24 @@ class BaseModel:
         pass
 
     def __iter__(self):
-        iters = {
-            key: value
-            for key, value in self.__dict__.items()
-            if key[:2] != '__'
-        }
+        iters = {key: value for key, value in self.__dict__.items() if key[:2] != "__"}
 
         for key, value in iters.items():
             yield key, value
 
     @classmethod
     def _next_id(cls):
-        """ Next DB ID """
+        """Next DB ID"""
 
-        last = list(cls._db[cls._name].find().sort('id', -1).limit(1))
+        last = list(cls._db[cls._name].find().sort("id", -1).limit(1))
 
         if last:
-            return last[0]['id'] + 1
+            return last[0]["id"] + 1
 
         return 1
 
     def _is_default(self, name):
-        """ Check the value for the default value """
+        """Check the value for the default value"""
 
         # Get full copy of the instance to restore the dependent default values
         data = deepcopy(self)
@@ -298,7 +298,7 @@ class BaseModel:
 
     @staticmethod
     def _is_subobject(data):
-        """ Checking for subobject
+        """Checking for subobject
 
         Theoretically, it is object, which has own model, but without DB
         Practically, it is dictionary with `id`
@@ -306,8 +306,9 @@ class BaseModel:
 
         if (
             isinstance(data, (list, tuple))
-            and data and isinstance(data[0], dict)
-            and 'id' in data[0]
+            and data
+            and isinstance(data[0], dict)
+            and "id" in data[0]
         ):
             return True
 
@@ -331,7 +332,7 @@ class BaseModel:
                 for el in data[key]:
                     if (
                         key not in loaded
-                        or el['id'] not in {i['id'] for i in loaded[key]}
+                        or el["id"] not in {i["id"] for i in loaded[key]}
                         or el not in loaded[key]
                     ):
                         data_push[key].append(el)
@@ -340,11 +341,8 @@ class BaseModel:
                     continue
 
                 for el in loaded[key]:
-                    if (
-                        key not in data
-                        or el['id'] not in {i['id'] for i in data[key]}
-                    ):
-                        data_pull[key].append(el['id'])
+                    if key not in data or el["id"] not in {i["id"] for i in data[key]}:
+                        data_pull[key].append(el["id"])
 
                 continue
 
@@ -353,13 +351,13 @@ class BaseModel:
         # Add subobjects to existing ones
         if data_push:
             # NOTE: I can't find way to select elements from array
-            fields = {'_id': False, **{field: True for field in data_push}}
-            data_prepush = self._coll.find_one({'id': self.id}, fields)
+            fields = {"_id": False, **{field: True for field in data_push}}
+            data_prepush = self._coll.find_one({"id": self.id}, fields)
 
             for field in data_prepush:
                 for value in data_prepush[field]:
                     for i in range(len(data_push[field])):
-                        if data_push[field][i]['id'] == value['id']:
+                        if data_push[field][i]["id"] == value["id"]:
                             break
                     else:
                         continue
@@ -386,11 +384,11 @@ class BaseModel:
         search: Optional[str] = None,
         fields: Union[List[str], Tuple[str], Set[str], None] = None,
         extra: dict = None,
-        sort: str = 'desc',
-        sortby: str = 'id',
+        sort: str = "desc",
+        sortby: str = "id",
         **kwargs,
     ):
-        """ Get instances of the object """
+        """Get instances of the object"""
 
         # TODO: key: Callable for complex conditions
         # TODO: optimize count limit to DB rule
@@ -400,18 +398,18 @@ class BaseModel:
         if ids:
             if isinstance(ids, (list, tuple, set)):
                 db_condition = {
-                    'id': {'$in': tuple(ids)},
+                    "id": {"$in": tuple(ids)},
                 }
             else:
                 process_one = True
                 db_condition = {
-                    'id': ids,
+                    "id": ids,
                 }
         elif ids is None:
             db_condition = {}
 
         else:
-            raise ErrorWrong('id')
+            raise ErrorWrong("id")
 
         if kwargs:
             for key, value in kwargs.items():
@@ -425,14 +423,14 @@ class BaseModel:
                 db_condition[key] = value
 
         db_filter = {
-            '_id': False,
+            "_id": False,
         }
 
         if fields is not None:
             # Add `id` for further saving the instance
             # NOTE: Leave `id` in `fields` for fields selections in the end
             fields = set(fields)
-            fields.add('id')
+            fields.add("id")
 
             for field in fields:
                 db_filter[field] = True
@@ -446,7 +444,7 @@ class BaseModel:
 
         if search:
             if len(search) < 3:
-                raise ErrorInvalid('search')
+                raise ErrorInvalid("search")
 
             search = search.lower()
 
@@ -462,10 +460,10 @@ class BaseModel:
                 if match:
                     els.append(el)
 
-            els.sort(key=lambda el: el[sortby], reverse=sort == 'desc')
+            els.sort(key=lambda el: el[sortby], reverse=sort == "desc")
 
         else:
-            els = res.sort(sortby, -1 if sort == 'desc' else 1)
+            els = res.sort(sortby, -1 if sort == "desc" else 1)
 
         if offset is None:
             offset = 0
@@ -478,10 +476,15 @@ class BaseModel:
         # 2. what fields were requested and use it for `reload`
         # NOTE: `fields={}` to not confuse unloaded and loaded with fields
         # NOTE: `fields` can't be partially loaded with `{}`, only `{'id'}`
-        els = list(map(lambda el: cls(
-            arg_data=el,
-            arg_fields=fields or {},
-        ), els))
+        els = list(
+            map(
+                lambda el: cls(
+                    arg_data=el,
+                    arg_fields=fields or {},
+                ),
+                els,
+            )
+        )
 
         # Leave requested attributes, clear of unnecessary ones:
         # 1. after searching
@@ -489,12 +492,12 @@ class BaseModel:
         if fields:
             for el in els:
                 for key in set(el.__dict__):
-                    if key not in fields and key[0] != '_':
+                    if key not in fields and key[0] != "_":
                         del el.__dict__[key]
 
         if process_one:
             if not els:
-                raise ErrorWrong('id')
+                raise ErrorWrong("id")
 
             return els[0]
 
@@ -508,7 +511,7 @@ class BaseModel:
     def save(
         self,
     ):
-        """ Save the instance
+        """Save the instance
 
         What attributes are not written to DB:
         * None values (via `.json(none=False)`)
@@ -529,7 +532,7 @@ class BaseModel:
         that was not loaded from the database (`_loaded_values`)
         """
 
-        exists = self.id and self._coll.count_documents({'id': self.id})
+        exists = self.id and self._coll.count_documents({"id": self.id})
 
         if exists and self._loaded_values is None:
             raise ErrorRepeat(self._name)
@@ -537,49 +540,49 @@ class BaseModel:
         # Update
         if exists:
             data = self.json(default=False)
-            data['updated'] = int(time.time())
+            data["updated"] = int(time.time())
 
             # Only changes
             (
-                data_set, data_unset,
-                data_push, data_pull,
+                data_set,
+                data_unset,
+                data_push,
+                data_pull,
                 data_update,
             ) = self._get_changes(data)
 
             changed = (
-                set(data_set) | data_unset | set(data_push)
-                | set(data_pull) | set(data_update)
-            ) - {'updated'}
+                set(data_set)
+                | data_unset
+                | set(data_push)
+                | set(data_pull)
+                | set(data_update)
+            ) - {"updated"}
 
             if not changed:
                 return
 
             # Update time
             # NOTE: After checking that there are changes
-            self.updated = data['updated']
+            self.updated = data["updated"]
 
             # Update in DB
 
             db_request = {
-                '$set': data_set,
+                "$set": data_set,
             }
 
             if data_unset:
-                db_request['$unset'] = {
-                    key: ''
-                    for key in data_unset
-                }
+                db_request["$unset"] = {key: "" for key in data_unset}
 
             if data_push:
-                db_request['$push'] = {
-                    key: {'$each': value}
-                    for key, value in data_push.items()
+                db_request["$push"] = {
+                    key: {"$each": value} for key, value in data_push.items()
                 }
 
             if data_pull:
-                db_request['$pull'] = {
-                    key: {'id': {'$in': value}}
-                    for key, value in data_pull.items()
+                db_request["$pull"] = {
+                    key: {"id": {"$in": value}} for key, value in data_pull.items()
                 }
 
             loaded_values = {
@@ -587,7 +590,7 @@ class BaseModel:
                 for key in changed
                 if key in self._loaded_values
             }
-            loaded_values['id'] = self.id
+            loaded_values["id"] = self.id
 
             res = self._coll.update_one(loaded_values, db_request)
 
@@ -598,8 +601,8 @@ class BaseModel:
                 for key, value in data_update.items():
                     for el in value:
                         self._coll.update_one(
-                            {'id': self.id, f'{key}.id': el['id']},
-                            {'$set': {f'{key}.$': el}}
+                            {"id": self.id, f"{key}.id": el["id"]},
+                            {"$set": {f"{key}.$": el}},
                         )
 
             # Update saved fields
@@ -619,7 +622,7 @@ class BaseModel:
         data = self.json(default=False)
 
         try:
-            self._coll.insert_one({'_id': self.id, **data})
+            self._coll.insert_one({"_id": self.id, **data})
         except DuplicateKeyError as e:
             raise ErrorRepeat(self._name) from e
 
@@ -629,52 +632,49 @@ class BaseModel:
     def rm(
         self,
     ):
-        """ Delete the instance """
+        """Delete the instance"""
 
-        res = self._coll.delete_one({'id': self.id}).deleted_count
+        res = self._coll.delete_one({"id": self.id}).deleted_count
 
         if not res:
-            raise ErrorWrong('id')
+            raise ErrorWrong("id")
 
     def rm_sub(
         self,
         field: str,
         ids: Union[int, str],
     ):
-        """ Delete the subobject of the instance
+        """Delete the subobject of the instance
 
         After calling this function, all unsaved instance data will be erased
         """
 
-        if not self._coll.count_documents({'id': self.id}):
-            raise ErrorUnsaved('id')
+        if not self._coll.count_documents({"id": self.id}):
+            raise ErrorUnsaved("id")
 
         # Update time
         self.updated = time.time()
 
         self._coll.update_one(
-            {'id': self.id},
+            {"id": self.id},
             {
-                '$set': {'updated': self.updated},
-                '$pull': {field: {'id': ids}},
-            }
+                "$set": {"updated": self.updated},
+                "$pull": {field: {"id": ids}},
+            },
         )
 
         self.reload()
 
         if self._is_default(field):
-            self._coll.update_one(
-                {'id': self.id},
-                {'$unset': {field: ''}}
-            )
+            self._coll.update_one({"id": self.id}, {"$unset": {field: ""}})
 
     def json(
         self,
-        default=True, # Return default values
-        none=False, # Return None values
+        default=True,  # Return default values
+        none=False,  # Return None values
         fields=None,
     ):
-        """ Get dictionary of the object
+        """Get dictionary of the object
 
         If default is True and there are fields,
         it will return only fields with non-default values
@@ -688,7 +688,7 @@ class BaseModel:
 
             value = getattr(self, attr)
 
-            if attr[0] == '_' or callable(value):
+            if attr[0] == "_" or callable(value):
                 continue
 
             if not default and self._is_default(attr):
@@ -705,7 +705,7 @@ class BaseModel:
         self,
         fields: set = None,
     ):
-        """ Update the object according to the data from the DB
+        """Update the object according to the data from the DB
 
         After calling this function, all unsaved instance data will be erased
         """
@@ -724,13 +724,14 @@ class BaseModel:
     @classmethod
     def complex(
         cls,
+        *args,
         handler: Callable = lambda obj: obj,
         fields: Union[List[str], Tuple[str], Set[str], None] = None,
         **kwargs,
     ):
-        """ Use combination of functions """
+        """Use combination of functions"""
 
-        instances = cls.get(fields=fields, **kwargs)
+        instances = cls.get(*args, fields=fields, **kwargs)
 
         if isinstance(instances, list):
             for i, instance in enumerate(instances):
@@ -747,7 +748,7 @@ class BaseModel:
         extra: dict = None,
         **kwargs,
     ):
-        """ Count of instances of the object """
+        """Count of instances of the object"""
 
         db_condition = {}
 

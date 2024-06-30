@@ -6,10 +6,10 @@ from .model import Attribute
 from .main import make_base
 
 
-__version__ = '0.30'
+__version__ = "0.31"
 
 __all__ = (
-    '__version__',
-    'Attribute',
-    'make_base',
+    "__version__",
+    "Attribute",
+    "make_base",
 )
