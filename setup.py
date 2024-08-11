@@ -30,8 +30,8 @@ setup(
     description="Base object model for Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/kosyachniy/consys",
-    author="Alexey Poloz",
+    url="https://github.com/chilleco/consys",
+    author="Alex Poloz",
     author_email="alexypoloz@gmail.com",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -49,13 +49,14 @@ setup(
     packages=find_packages(exclude=("tests",)),
     python_requires=">=3.7, <4",
     install_requires=[
+        # NOTE: Without lib versions because of conflicts with main repo
         "pymongo==4.8.0",
         "Pillow==10.3.0",
-        "requests",  # Because of conflicts with main repo
+        "requests",
         "pydantic==2.7.4",
     ],
     project_urls={
-        "Source": "https://github.com/kosyachniy/consys",
+        "Source": "https://github.com/chilleco/consys",
     },
     license="MIT",
     include_package_data=False,

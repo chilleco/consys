@@ -12,7 +12,11 @@ setup-release:
 	python3 -m venv env
 	$(PYTHON) -m pip install -r requirements.dev.txt
 
-test-linter-all:
+setup-all:
+	make setup-tests
+	make setup-release
+
+test-lint-all:
 	find . -type f -name '*.py' \
 	| grep -vE 'env/' \
 	| grep -vE 'tests/' \
@@ -21,7 +25,7 @@ test-linter-all:
 		--rcfile=tests/.pylintrc \
 		--msg-template='{path}:{line}:{column}: [{symbol}] {msg}'
 
-test-linter:
+test-lint:
 	git status -s \
 	| grep -vE 'tests/' \
 	| grep '\.py$$' \
@@ -44,10 +48,11 @@ test-unit:
 	| xargs $(PYTHON) -m pytest -s
 
 test:
-	make test-linter-all
+	make test-lint-all
 	make test-unit-all
 
 release:
+	make clean
 	$(PYTHON) setup.py sdist bdist_wheel
 	sudo $(PYTHON) -m twine upload dist/*
 
