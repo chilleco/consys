@@ -7,7 +7,7 @@ import json
 import string
 import random
 from abc import abstractmethod
-from typing import Union, Optional, Any, Callable, List, Tuple, Set
+from typing import Any, Callable
 from copy import deepcopy
 from collections import defaultdict
 
@@ -19,24 +19,49 @@ SYMBOLS = string.digits + string.ascii_letters
 
 
 # pylint: disable=too-many-return-statements
-def _search(value, search):
-    """Search for matches by value"""
+def _search_str(value, search):
+    """Search for matches by str value"""
 
     if isinstance(value, str):
         return search in value.lower()
 
     if isinstance(value, (int, float)):
-        return search.isdigit() and int(search) == value
+        return search.isdigit() and search in str(value)
 
     if isinstance(value, (list, tuple, set)):
         for el in value:
-            if _search(el, search):
+            if _search_str(el, search):
                 return True
         return False
 
     if isinstance(value, dict):
         for el in value.values():
-            if _search(el, search):
+            if _search_str(el, search):
+                return True
+        return False
+
+    return False
+
+
+# pylint: disable=too-many-return-statements
+def _search_int(value, search):
+    """Search for matches by int value"""
+
+    if isinstance(value, str) and value.isdigit():
+        return search == int(value)
+
+    if isinstance(value, (int, float)):
+        return search == int(value)
+
+    if isinstance(value, (list, tuple, set)):
+        for el in value:
+            if _search_int(el, search):
+                return True
+        return False
+
+    if isinstance(value, dict):
+        for el in value.values():
+            if _search_int(el, search):
                 return True
         return False
 
@@ -378,11 +403,11 @@ class BaseModel:
     @classmethod
     def get(
         cls,
-        ids: Union[list, tuple, set, int, str, None] = None,
-        limit: Optional[int] = None,
+        ids: list | tuple | set | int | str | None = None,
+        limit: int | None = None,
         offset: int = 0,
-        search: Optional[str] = None,
-        fields: Union[List[str], Tuple[str], Set[str], None] = None,
+        search: str | int | None = None,
+        fields: list[str] | tuple[str] | set[str] | None = None,
         extra: dict = None,
         sort: str = "desc",
         sortby: str = "id",
@@ -442,20 +467,25 @@ class BaseModel:
         res = cls._db[cls._name].find(db_condition, db_filter)
         els = []
 
-        if search:
-            if len(search) < 3:
-                raise ErrorInvalid("search")
-
-            search = search.lower()
+        if search:  # TODO: 0 ?
+            if isinstance(search, str):
+                if len(search) < 3:
+                    raise ErrorInvalid("search")
+                search = search.lower()
 
             for el in res:
                 match = False
 
                 for field in cls._search_fields:
                     if field in el:
-                        if _search(el[field], search):
-                            match = True
-                            break
+                        if isinstance(search, str):
+                            if _search_str(el[field], search):
+                                match = True
+                                break
+                        else:
+                            if _search_int(el[field], search):
+                                match = True
+                                break
 
                 if match:
                     els.append(el)
@@ -642,7 +672,7 @@ class BaseModel:
     def rm_sub(
         self,
         field: str,
-        ids: Union[int, str],
+        ids: int | str,
     ):
         """Delete the subobject of the instance
 
@@ -726,7 +756,7 @@ class BaseModel:
         cls,
         *args,
         handler: Callable = lambda obj: obj,
-        fields: Union[List[str], Tuple[str], Set[str], None] = None,
+        fields: list[str] | tuple[str] | set[str] | None = None,
         **kwargs,
     ):
         """Use combination of functions"""
