@@ -481,9 +481,40 @@ def test_get_resaved():
     assert ObjectModel.get(instance.id).multi == [1, 2, 3, 4, 5]
 
 
-def test_proprty():
+def test_property():
     instance = ObjectModel(meta="ulu")
     instance.save()
 
     assert instance.teta == "ulu"
     instance.save()
+
+
+def test_get_changes():
+    instance = ObjectModel(
+        # meta = None,
+        delta="",
+        extra=None,
+        multi=[1, 2, 3],
+        sodzu={"a": "b", "b": "c"},
+    )
+
+    assert instance.get_changes() == {
+        "created": (None, instance.created),
+        "multi": (None, [1, 2, 3]),
+        "sodzu": (None, {"a": "b", "b": "c"}),
+    }
+
+    instance.save()
+
+    instance.meta = 123
+    instance.delta = ""
+    # instance.extra
+    instance.multi.append(4)
+    instance.multi[0] = 5
+    instance.sodzu.update({"a": "c", "c": "d"})
+
+    assert instance.get_changes() == {
+        "meta": (None, "123"),
+        "multi": ([1, 2, 3], [5, 2, 3, 4]),
+        "sodzu": ({"a": "b", "b": "c"}, {"a": "c", "b": "c", "c": "d"}),
+    }

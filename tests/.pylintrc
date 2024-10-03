@@ -1,15 +1,13 @@
 [MASTER]
 jobs=2
-extension-pkg-whitelist=pydantic
 
 [FORMAT]
-max-line-length=80
+max-line-length=88
 
 [MISCELLANEOUS]
-notes=FIXME # TODO,BUG,UGLY
+notes=BUG,UGLY # TODO,FIXME
 
 [BASIC]
-good-names=i,j,e,f,ip,id,to,rm,el,tg,vk
 no-docstring-rgx=[(__.*__)(Type)]
 
 [DESIGN]

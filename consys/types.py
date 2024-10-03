@@ -10,7 +10,7 @@ from .errors import ErrorSpecified, ErrorType
 
 
 def _strip(data):
-    """ Remove extra indentation """
+    """Remove extra indentation"""
 
     if not isinstance(data, dict):
         return
@@ -28,14 +28,15 @@ def _strip(data):
             for el in data[field]:
                 _strip(el)
 
+
 def _check(data, filters):
-    """ Convert the parameters to the required object """
+    """Convert the parameters to the required object"""
 
     try:
         return filters(**data)
 
     except ValidationError as e:
-        field = e.errors()[0]['loc'][0]
+        field = e.errors()[0]["loc"][0]
 
         if field in data:
             raise ErrorType(field) from e
@@ -44,7 +45,7 @@ def _check(data, filters):
 
 
 def validate(filters):
-    """ Validation of function parameters """
+    """Validation of function parameters"""
 
     def decorator(f):
         @wraps(f)
@@ -52,11 +53,13 @@ def validate(filters):
             _strip(data)
             data = _check(data, filters)
             return f(request, data)
+
         return wrapper
+
     return decorator
 
 
 __all__ = (
-    'BaseType',
-    'validate',
+    "BaseType",
+    "validate",
 )

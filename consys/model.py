@@ -34,6 +34,7 @@ class Attribute:
     processing: Callable = None
     ignore: bool = False
 
+    # pylint: disable=too-many-positional-arguments
     def __init__(
         self,
         types=None,
@@ -349,6 +350,42 @@ class BaseModel:
 
         return data_set, data_unset, data_push, data_pull, data_update
 
+    def get_changes(self):
+        """
+        Calculate and return a dictionary of changes between the current state of the object and its original state
+        (as loaded from the database).
+
+        This method compares the current attribute values with the `_loaded_values` (the state of the object when
+        it was loaded from the database) and identifies fields that have been changed.
+
+        Returns:
+            dict: A dictionary where each key represents an attribute name that has been changed, and its value is a
+                tuple in the format `(old_value, new_value)`, representing the previous value and the current value.
+                If there are no changes, returns an empty dictionary.
+
+        Example:
+            If the original state is:
+                {'title': 'Old Title', 'data': 'Old Data'}
+
+            And the current state is:
+                {'title': 'New Title', 'data': 'Old Data'}
+
+            The output will be:
+                {'title': ('Old Title', 'New Title')}
+        """
+
+        loaded = self._loaded_values or {}
+        data = self.json(default=False)
+        fields = loaded.keys() | data.keys()
+        changes = {}
+
+        for key in fields:
+            if loaded.get(key) == data.get(key):
+                continue
+            changes[key] = (loaded.get(key), data.get(key))
+
+        return changes
+
     @classmethod
     def _build_search_query(cls, search: str | int) -> dict:
         """Builds a MongoDB search query based on the search parameter.
@@ -426,7 +463,7 @@ class BaseModel:
 
         return {"$or": search_conditions}
 
-    # pylint: disable=too-many-locals,too-many-statements,too-many-branches,too-many-arguments
+    # pylint: disable=too-many-locals,too-many-statements,too-many-branches,too-many-arguments,too-many-positional-arguments
     @classmethod
     def get(
         cls,
@@ -660,7 +697,7 @@ class BaseModel:
             raise ErrorRepeat(self._name) from e
 
         # Update saved fields
-        self._loaded_values = data
+        self._loaded_values = deepcopy(data)
 
     def rm(
         self,
