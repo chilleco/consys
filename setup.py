@@ -50,10 +50,10 @@ setup(
     python_requires=">=3.7, <4",
     install_requires=[
         # NOTE: Without lib versions because of conflicts with main repo
-        "pymongo==4.8.0",
-        "Pillow==10.3.0",
+        "pymongo==4.10.1",
+        "pillow==10.4.0",
         "requests",
-        "pydantic==2.7.4",
+        "pydantic==2.9.2",
     ],
     project_urls={
         "Source": "https://github.com/chilleco/consys",

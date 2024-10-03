@@ -606,7 +606,7 @@ class BaseModel:
                         )
 
             # Update saved fields
-            self._loaded_values = data
+            self._loaded_values = deepcopy(data)
 
             return
 

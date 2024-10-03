@@ -124,6 +124,7 @@ def pre_process_name(cont):
     """Name & Surname pre-processing"""
     cont = re.sub(r"[\"″′ˈ'ꞌ᾿‴`⁗]", "'", cont)
     cont = re.sub(r"[-–—]", "-", cont)
+    cont = re.sub(r"[\.]", "", cont)
     return cont.strip()
 
 
