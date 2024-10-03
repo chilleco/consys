@@ -518,3 +518,11 @@ def test_get_changes():
         "multi": ([1, 2, 3], [5, 2, 3, 4]),
         "sodzu": ({"a": "b", "b": "c"}, {"a": "c", "b": "c", "c": "d"}),
     }
+
+
+def test_load_by():
+    uniq = generate()
+    instance = ObjectModel(meta=uniq)
+    instance.save()
+
+    assert ObjectModel.get(uniq, by="meta").id == instance.id

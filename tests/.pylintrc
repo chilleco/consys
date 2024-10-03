@@ -5,7 +5,7 @@ jobs=2
 max-line-length=88
 
 [MISCELLANEOUS]
-notes=BUG,UGLY # TODO,FIXME
+notes=BUG # TODO,FIXME,UGLY
 
 [BASIC]
 no-docstring-rgx=[(__.*__)(Type)]

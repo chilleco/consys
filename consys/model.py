@@ -351,6 +351,7 @@ class BaseModel:
         return data_set, data_unset, data_push, data_pull, data_update
 
     def get_changes(self):
+        # pylint: disable=line-too-long
         """
         Calculate and return a dictionary of changes between the current state of the object and its original state
         (as loaded from the database).
@@ -475,6 +476,7 @@ class BaseModel:
         extra: dict = None,
         sort: str = "desc",
         sortby: str = "id",
+        by: str = "id",
         **kwargs,
     ):
         """Get instances of the object"""
@@ -487,17 +489,17 @@ class BaseModel:
         if ids:
             if isinstance(ids, (list, tuple, set)):
                 db_condition = {
-                    "id": {"$in": list(ids)},
+                    by: {"$in": list(ids)},
                 }
             else:
                 process_one = True
                 db_condition = {
-                    "id": ids,
+                    by: ids,
                 }
         elif ids is None:
             db_condition = {}
         else:
-            raise ErrorWrong("id")
+            raise ErrorWrong(by)
 
         if kwargs:
             for key, value in kwargs.items():
@@ -514,10 +516,11 @@ class BaseModel:
         }
 
         if fields is not None:
-            # Add `id` for further saving the instance
+            # Add `id` and `by` for further saving the instance
             # NOTE: Leave `id` in `fields` for fields selections in the end
             fields = set(fields)
             fields.add("id")
+            fields.add(by)
 
             for field in fields:
                 db_filter[field] = True
@@ -557,7 +560,7 @@ class BaseModel:
             )
         )
 
-        # Leave requested attributes, clear of unnecessary ones:
+        # Clean up unnecessary attributes
         # 1. after searching
         # 2. autocomplete
         if fields:
@@ -568,12 +571,12 @@ class BaseModel:
 
         if process_one:
             if not els:
-                raise ErrorWrong("id")
+                raise ErrorWrong(by)
             return els[0]
 
         # # Not all IDs found
         # if ids and len(ids) != len(els):
-        #     raise ErrorWrong('id')
+        #     raise ErrorWrong(by)
 
         return els
 
