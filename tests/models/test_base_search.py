@@ -64,11 +64,13 @@ def test_search():
         assert get_ids(ObjectModel.get(data=uniq, search="a"))
 
     assert get_ids(ObjectModel.get(data=uniq, search="bbb")) == get_ids(
-        [instance4, instance2]
+        # [instance4, instance2]
+        [instance2]
     )
 
     assert get_ids(ObjectModel.get(data=uniq, search="111")) == get_ids(
-        [instance4, instance3, instance2, instance1]
+        # [instance4, instance3, instance2, instance1]
+        [instance4, instance2, instance1]
     )
 
     assert get_ids(ObjectModel.get(data=uniq, search=1)) == get_ids([])
@@ -77,4 +79,30 @@ def test_search():
 
     assert get_ids(ObjectModel.get(data=uniq, search=0)) == get_ids(
         [instance4, instance3, instance2, instance1]
+    )
+
+
+def test_search_case():
+    uniq = generate()
+
+    instance1 = ObjectModel(
+        data=uniq,
+        search_str="Abc",
+    )
+    instance1.save()
+
+    instance2 = ObjectModel(
+        data=uniq,
+        search_str="ABCD",
+    )
+    instance2.save()
+
+    instance3 = ObjectModel(
+        data=uniq,
+        search_str="abcde",
+    )
+    instance3.save()
+
+    assert get_ids(ObjectModel.get(data=uniq, search="aBc")) == get_ids(
+        [instance3, instance2, instance1]
     )

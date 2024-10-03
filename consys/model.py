@@ -18,56 +18,6 @@ from .errors import ErrorInvalid, ErrorWrong, ErrorRepeat, ErrorUnsaved
 SYMBOLS = string.digits + string.ascii_letters
 
 
-# pylint: disable=too-many-return-statements
-def _search_str(value, search):
-    """Search for matches by str value"""
-
-    if isinstance(value, str):
-        return search in value.lower()
-
-    if isinstance(value, (int, float)):
-        return search.isdigit() and search in str(value)
-
-    if isinstance(value, (list, tuple, set)):
-        for el in value:
-            if _search_str(el, search):
-                return True
-        return False
-
-    if isinstance(value, dict):
-        for el in value.values():
-            if _search_str(el, search):
-                return True
-        return False
-
-    return False
-
-
-# pylint: disable=too-many-return-statements
-def _search_int(value, search):
-    """Search for matches by int value"""
-
-    if isinstance(value, str) and value.isdigit():
-        return search == int(value)
-
-    if isinstance(value, (int, float)):
-        return search == int(value)
-
-    if isinstance(value, (list, tuple, set)):
-        for el in value:
-            if _search_int(el, search):
-                return True
-        return False
-
-    if isinstance(value, dict):
-        for el in value.values():
-            if _search_int(el, search):
-                return True
-        return False
-
-    return False
-
-
 def _generate(length: int = 32) -> str:
     """ID generation"""
     return "".join(random.choice(SYMBOLS) for _ in range(length))
@@ -399,7 +349,84 @@ class BaseModel:
 
         return data_set, data_unset, data_push, data_pull, data_update
 
-    # pylint: disable=too-many-locals,too-many-statements,too-many-arguments
+    @classmethod
+    def _build_search_query(cls, search: str | int) -> dict:
+        """Builds a MongoDB search query based on the search parameter.
+
+        Args:
+            search (str | int): The search term provided by the user.
+
+        Returns:
+            dict: A MongoDB query dictionary to be used in the find operation.
+
+        Raises:
+            ErrorInvalid: If the search term is invalid.
+        """
+        search_conditions = []
+
+        if isinstance(search, str):
+            if len(search) < 3:
+                raise ErrorInvalid("search")
+            search_lower = search.lower()
+
+            for field in cls._search_fields:
+                field_conditions = []
+
+                # For string fields
+                field_conditions.append(
+                    {field: {"$regex": search_lower, "$options": "i"}}
+                )
+
+                # For numeric fields represented as strings
+                if search.isdigit():
+                    num_value = int(search)
+                    field_conditions.append({field: num_value})
+                    field_conditions.append({field: {"$regex": f".*{search}.*"}})
+
+                # # For list/array fields containing strings
+                # field_conditions.append(
+                #     {field: {"$elemMatch": {"$regex": search_lower, "$options": "i"}}}
+                # )
+
+                # # For list of numbers
+                # if search.isdigit():
+                #     num_value = int(search)
+                #     field_conditions.append({field: {"$elemMatch": num_value}})
+                #     field_conditions.append(
+                #         {field: {"$elemMatch": {"$regex": f".*{search}.*"}}}
+                #     )
+
+                # # For dict fields (search in values)
+                # field_conditions.append(
+                #     {f"{field}": {"$regex": search_lower, "$options": "i"}}
+                # )
+
+                search_conditions.extend(field_conditions)
+
+        elif isinstance(search, int):
+            for field in cls._search_fields:
+                field_conditions = []
+
+                # For numeric fields
+                field_conditions.append({field: search})
+
+                # For string fields that can be converted to numbers
+                field_conditions.append({field: str(search)})
+
+                # # For list/array fields
+                # field_conditions.append({field: {"$elemMatch": search}})
+
+                # For dict fields (search in values)
+                field_conditions.append({f"{field}": search})
+
+                search_conditions.extend(field_conditions)
+
+        else:
+            raise ErrorInvalid("search")
+
+        return {"$or": search_conditions}
+
+    # pylint: disable=too-many-locals,too-many-statements,too-many-branches,too-many-arguments
     @classmethod
     def get(
         cls,
@@ -423,7 +450,7 @@ class BaseModel:
         if ids:
             if isinstance(ids, (list, tuple, set)):
                 db_condition = {
-                    "id": {"$in": tuple(ids)},
+                    "id": {"$in": list(ids)},
                 }
             else:
                 process_one = True
@@ -432,7 +459,6 @@ class BaseModel:
                 }
         elif ids is None:
             db_condition = {}
-
         else:
             raise ErrorWrong("id")
 
@@ -440,7 +466,6 @@ class BaseModel:
             for key, value in kwargs.items():
                 if value is None:
                     continue
-
                 db_condition[key] = value
 
         if extra:
@@ -460,47 +485,26 @@ class BaseModel:
             for field in fields:
                 db_filter[field] = True
 
-            if search:
-                for field in cls._search_fields:
-                    db_filter[field] = True
+        if search:
+            search_query = cls._build_search_query(search)
+            # Combine existing conditions with search conditions
+            if db_condition:
+                db_condition = {"$and": [db_condition, search_query]}
+            else:
+                db_condition = search_query
 
         res = cls._db[cls._name].find(db_condition, db_filter)
-        els = []
 
-        if search:  # TODO: 0 ?
-            if isinstance(search, str):
-                if len(search) < 3:
-                    raise ErrorInvalid("search")
-                search = search.lower()
+        # Apply sorting
+        res = res.sort(sortby, -1 if sort == "desc" else 1)
 
-            for el in res:
-                match = False
+        # Apply offset and limit
+        if offset:
+            res = res.skip(offset)
+        if limit:
+            res = res.limit(limit)
 
-                for field in cls._search_fields:
-                    if field in el:
-                        if isinstance(search, str):
-                            if _search_str(el[field], search):
-                                match = True
-                                break
-                        else:
-                            if _search_int(el[field], search):
-                                match = True
-                                break
-
-                if match:
-                    els.append(el)
-
-            els.sort(key=lambda el: el[sortby], reverse=sort == "desc")
-
-        else:
-            els = res.sort(sortby, -1 if sort == "desc" else 1)
-
-        if offset is None:
-            offset = 0
-
-        last = limit + offset if limit else None
-        els = els[offset:last]
-
+        # Fetch the results
         # `fields` to indicate:
         # 1. that the instance was loaded and avoid unnecessary data saving
         # 2. what fields were requested and use it for `reload`
@@ -512,7 +516,7 @@ class BaseModel:
                     arg_data=el,
                     arg_fields=fields or {},
                 ),
-                els,
+                res,
             )
         )
 
@@ -522,13 +526,12 @@ class BaseModel:
         if fields:
             for el in els:
                 for key in set(el.__dict__):
-                    if key not in fields and key[0] != "_":
+                    if key not in fields and not key.startswith("_"):
                         del el.__dict__[key]
 
         if process_one:
             if not els:
                 raise ErrorWrong("id")
-
             return els[0]
 
         # # Not all IDs found
