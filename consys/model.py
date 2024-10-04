@@ -819,6 +819,7 @@ class BaseModel:
         cls,
         offset: int = 0,
         extra: dict = None,
+        search: str | int | None = None,
         **kwargs,
     ):
         """Count of instances of the object"""
@@ -829,11 +830,17 @@ class BaseModel:
             for key, value in kwargs.items():
                 if value is None:
                     continue
-
                 db_condition[key] = value
 
         if extra:
             for key, value in extra.items():
                 db_condition[key] = value
+
+        if search:
+            search_query = cls._build_search_query(search)
+            if db_condition:
+                db_condition = {"$and": [db_condition, search_query]}
+            else:
+                db_condition = search_query
 
         return cls._db[cls._name].count_documents(db_condition, skip=offset)

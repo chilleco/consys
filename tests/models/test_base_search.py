@@ -106,3 +106,36 @@ def test_search_case():
     assert get_ids(ObjectModel.get(data=uniq, search="aBc")) == get_ids(
         [instance3, instance2, instance1]
     )
+
+
+def test_search_count():
+    uniq = generate()
+
+    instance1 = ObjectModel(
+        data=uniq,
+        search_str="Abc",
+    )
+    instance1.save()
+
+    instance2 = ObjectModel(
+        data=uniq,
+        search_str="ABCD",
+    )
+    instance2.save()
+
+    instance3 = ObjectModel(
+        data=uniq,
+        search_str="abcde",
+    )
+    instance3.save()
+
+    instance4 = ObjectModel(
+        data=uniq,
+        search_str="xyz",
+    )
+    instance4.save()
+
+    assert ObjectModel.count(data=uniq, search="aBc") == 3
+    assert ObjectModel.count(data=uniq, search="xyz") == 1
+    assert ObjectModel.count(data=uniq, search="123") == 0
+    assert ObjectModel.count(data=uniq, search=1) == 0
