@@ -477,7 +477,7 @@ class BaseModel:
         extra: dict = None,
         sort: str = "desc",
         sortby: str = "id",
-        sortfields: list[str] = None,
+        sortfields: list[str] | None = None,
         by: str = "id",
         **kwargs,
     ):
@@ -579,12 +579,13 @@ class BaseModel:
             sort_stage["$sort"][sortby] = sort_order
             pipeline.append(sort_stage)
 
-            # Project the necessary fields, excluding computed fields
+            # Project the necessary fields using inclusion only
             project_stage = {"$project": db_filter}
-            for field in sortfields:
-                field_name = f"has_{field}"
-                project_stage["$project"][field_name] = False
             pipeline.append(project_stage)
+
+            # Unset the computed fields to remove them from the final output
+            unset_fields = [f"has_{field}" for field in sortfields]
+            pipeline.append({"$unset": unset_fields})
 
             # Apply pagination
             if offset:
