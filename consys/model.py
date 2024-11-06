@@ -400,6 +400,7 @@ class BaseModel:
         Raises:
             ErrorInvalid: If the search term is invalid.
         """
+
         search_conditions = []
 
         if isinstance(search, str):
@@ -476,6 +477,7 @@ class BaseModel:
         extra: dict = None,
         sort: str = "desc",
         sortby: str = "id",
+        sortfields: list[str] = None,
         by: str = "id",
         **kwargs,
     ):
@@ -486,6 +488,7 @@ class BaseModel:
 
         process_one = False
 
+        # Build the base condition
         if ids:
             if isinstance(ids, (list, tuple, set)):
                 db_condition = {
@@ -501,6 +504,7 @@ class BaseModel:
         else:
             raise ErrorWrong(by)
 
+        # Incorporate additional conditions
         if kwargs:
             for key, value in kwargs.items():
                 if value is None:
@@ -511,6 +515,15 @@ class BaseModel:
             for key, value in extra.items():
                 db_condition[key] = value
 
+        # Handle search queries
+        if search:
+            search_query = cls._build_search_query(search)
+            if db_condition:
+                db_condition = {"$and": [db_condition, search_query]}
+            else:
+                db_condition = search_query
+
+        # Prepare the fields to retrieve
         db_filter = {
             "_id": False,
         }
@@ -525,24 +538,75 @@ class BaseModel:
             for field in fields:
                 db_filter[field] = True
 
-        if search:
-            search_query = cls._build_search_query(search)
-            # Combine existing conditions with search conditions
+        # Check if sorting by field existence is requested
+        if sortfields:
+            # Build the aggregation pipeline
+            pipeline = []
+
+            # Match stage based on conditions
             if db_condition:
-                db_condition = {"$and": [db_condition, search_query]}
-            else:
-                db_condition = search_query
+                pipeline.append({"$match": db_condition})
 
-        res = cls._db[cls._name].find(db_condition, db_filter)
+            # Add computed fields indicating field existence
+            add_fields_stage = {"$addFields": {}}
+            for field in sortfields:
+                field_name = f"has_{field}"
+                if field in ["products", "finance"]:
+                    # For array fields
+                    add_fields_stage["$addFields"][field_name] = {
+                        "$cond": [
+                            {"$gt": [{"$size": {"$ifNull": [f"${field}", []]}}, 0]},
+                            1,
+                            0,
+                        ]
+                    }
+                else:
+                    # For scalar fields
+                    add_fields_stage["$addFields"][field_name] = {
+                        "$cond": [{"$ifNull": [f"${field}", False]}, 1, 0]
+                    }
+            pipeline.append(add_fields_stage)
 
-        # Apply sorting
-        res = res.sort(sortby, -1 if sort == "desc" else 1)
+            # Sort stage based on computed fields and additional sort criteria
+            sort_stage = {"$sort": {}}
+            for field in sortfields:
+                field_name = f"has_{field}"
+                sort_order = -1 if sort == "desc" else 1
+                sort_stage["$sort"][field_name] = sort_order
 
-        # Apply offset and limit
-        if offset:
-            res = res.skip(offset)
-        if limit:
-            res = res.limit(limit)
+            # Additional sorting by `sortby`
+            sort_order = -1 if sort == "desc" else 1
+            sort_stage["$sort"][sortby] = sort_order
+            pipeline.append(sort_stage)
+
+            # Project the necessary fields, excluding computed fields
+            project_stage = {"$project": db_filter}
+            for field in sortfields:
+                field_name = f"has_{field}"
+                project_stage["$project"][field_name] = False
+            pipeline.append(project_stage)
+
+            # Apply pagination
+            if offset:
+                pipeline.append({"$skip": offset})
+            if limit:
+                pipeline.append({"$limit": limit})
+
+            # Execute the aggregation pipeline
+            res = cls._db[cls._name].aggregate(pipeline)
+
+        else:
+            # Use the standard find method if no special sorting is requested
+            res = cls._db[cls._name].find(db_condition, db_filter)
+
+            # Apply sorting
+            res = res.sort(sortby, -1 if sort == "desc" else 1)
+
+            # Apply pagination
+            if offset:
+                res = res.skip(offset)
+            if limit:
+                res = res.limit(limit)
 
         # Fetch the results
         # `fields` to indicate:
@@ -569,6 +633,7 @@ class BaseModel:
                     if key not in fields and not key.startswith("_"):
                         del el.__dict__[key]
 
+        # Handle single document retrieval
         if process_one:
             if not els:
                 raise ErrorWrong(by)

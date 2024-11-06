@@ -3,7 +3,7 @@ import time
 import pytest
 from libdev.gen import generate
 
-from . import Base, Attribute
+from . import Base, Attribute, get_ids, filter_ids
 from consys.errors import ErrorWrong
 
 
@@ -526,3 +526,45 @@ def test_load_by():
     instance.save()
 
     assert ObjectModel.get(uniq, by="meta").id == instance.id
+
+
+def test_get_changes():
+    instance1 = ObjectModel(
+        meta="1",
+        delta="",
+        extra=None,
+    )
+    instance1.save()
+
+    instance2 = ObjectModel(
+        meta=None,
+        delta="2",
+        extra="7",
+    )
+    instance2.save()
+
+    instance3 = ObjectModel(
+        meta="3",
+        delta="3",
+        extra="3",
+    )
+    instance3.save()
+
+    instance4 = ObjectModel(
+        meta=None,
+        delta=None,
+        extra=None,
+    )
+    instance4.save()
+
+    lvl1 = filter_ids(
+        ObjectModel.get(sortfields=("meta", "delta", "extra")),
+        [instance1, instance2, instance3, instance4],
+    )
+    assert lvl1 == get_ids([instance3, instance1, instance2, instance4])
+
+    lvl2 = filter_ids(
+        ObjectModel.get(sortfields=("delta", "extra", "meta")),
+        [instance1, instance2, instance3, instance4],
+    )
+    assert lvl2 == get_ids([instance3, instance2, instance1, instance4])

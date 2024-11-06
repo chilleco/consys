@@ -12,6 +12,8 @@ class ObjectModel(Base):
         "search_str",
         "search_list",
         "search_dict",
+        "search_dict.ru",
+        "search_dict.en",
     }
 
     search_int = Attribute(types=int)
@@ -139,3 +141,91 @@ def test_search_count():
     assert ObjectModel.count(data=uniq, search="xyz") == 1
     assert ObjectModel.count(data=uniq, search="123") == 0
     assert ObjectModel.count(data=uniq, search=1) == 0
+
+
+def test_search_nested():
+    uniq = generate()
+
+    instance1 = ObjectModel(
+        data=uniq,
+        search_dict={
+            "ru": 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "БИПИЭМТИМ"',
+            "en": "LLC BPMTEAM",
+        },
+    )
+    instance1.save()
+
+    instance2 = ObjectModel(
+        data=uniq,
+        search_dict={
+            "ru": 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "КОМАНДНОЕ ВЗАИМОДЕЙСТВИЕ"',
+            "en": "TEAM COORDINATION LIMITED LIABILITY COMPANY",
+        },
+    )
+    instance2.save()
+
+    instance3 = ObjectModel(
+        data=uniq,
+        search_dict={
+            "ru": 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ПОЛИТИМ ИННОВАЦИИ"',
+            "en": "POLYTEAM INNOVATION",
+        },
+    )
+    instance3.save()
+
+    instance4 = ObjectModel(
+        data=uniq,
+        search_dict={
+            "ru": 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ХРОНИКАЛС РЕСЕРЧ ТИМ"',
+            "en": 'LIMITED LIABILITY COMPANY  "CHRONICLES RESEARCH TEAM"',
+        },
+    )
+    instance4.save()
+
+    instance5 = ObjectModel(
+        data=uniq,
+        search_dict={
+            "ru": 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ОЛЛИ ТИМ"',
+            "en": 'LIMITED LIABILITY COMPANY "OLLY TEAM"',
+        },
+    )
+    instance5.save()
+
+    instance6 = ObjectModel(
+        data=uniq,
+        search_dict={
+            "ru": 'ОБЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОМОРУ ТИМ"',
+            "en": "TOMORU.TEAM",
+        },
+    )
+    instance6.save()
+
+    instance7 = ObjectModel(
+        data=uniq,
+        search_dict={"ru": "MooTeam"},
+    )
+    instance7.save()
+
+    instance8 = ObjectModel(
+        data=uniq,
+        search_dict={"ru": "Thank.Team"},
+    )
+    instance8.save()
+
+    instance9 = ObjectModel(
+        data=uniq,
+        search_dict={"ru": "Solotea"},
+    )
+    instance9.save()
+
+    instance10 = ObjectModel(
+        data=uniq,
+        search_dict={"ru": "TEAMLY"},
+    )
+    instance10.save()
+
+    assert len(ObjectModel.complex(data=uniq, search="tea")) == 10
+    assert ObjectModel.count(data=uniq, search="tea") == 10
+    assert ObjectModel.count(data=uniq, search="team") == 9
+    assert ObjectModel.count(data=uniq, search="teaml") == 1
+    assert ObjectModel.count(data=uniq, search="teamlx") == 0
