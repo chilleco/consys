@@ -479,6 +479,7 @@ class BaseModel:
         sortby: str = "id",
         sortfields: list[str] | None = None,
         by: str = "id",
+        pipeline: list | None = None,
         **kwargs,
     ):
         """Get instances of the object"""
@@ -541,7 +542,7 @@ class BaseModel:
         # Check if sorting by field existence is requested
         if sortfields:
             # Build the aggregation pipeline
-            pipeline = []
+            pipeline = pipeline or []
 
             # Match stage based on conditions
             if db_condition:
