@@ -50,7 +50,7 @@ setup(
     python_requires=">=3.7, <4",
     install_requires=[
         "pymongo>=4.10,<5",
-        "pillow>=10,<11",
+        "pillow>=10",
         "requests",
         "pydantic>=2.8,<3",
     ],

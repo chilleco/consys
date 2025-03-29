@@ -206,19 +206,7 @@ def process_lower(cont):
 
 def default_title(instance):
     """Default title for users"""
-
-    if instance.name:
-        text = instance.name
-    else:
-        text = ""
-
-    if instance.surname:
-        if text:
-            text += " "
-
-        text += instance.surname
-
-    return text
+    return f"{instance.name or ''} {instance.surname or ''}".strip()
 
 
 def default_status(instance):
