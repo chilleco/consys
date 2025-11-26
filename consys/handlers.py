@@ -1,5 +1,5 @@
 """
-Handlers
+Reusable validators and processors for common ConSys attributes.
 """
 
 import re

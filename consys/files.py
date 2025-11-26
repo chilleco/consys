@@ -1,5 +1,5 @@
 """
-Files functionality
+File uploader utilities that complement ConSys model fields.
 """
 
 import os
@@ -16,17 +16,23 @@ from .errors import ErrorUpload
 
 
 class FileUploader:
-    """ File uploader """
+    """High-level helper for storing images referenced by ConSys models.
 
-    def __init__(self, path='/', prefix='/', side_optimized=None):
+    Designed to back fields such as `BaseModel.image`, it supports multiple
+    input formats (filenames, base64 blobs, external URLs) and ensures files are
+    normalized so the ORM can store stable references in MongoDB.
+    """
+
+    def __init__(self, path="/", prefix="/", side_optimized=None):
+        """Configure where uploads are written and how URLs are exposed."""
         self.path = path
         self.prefix = prefix
         self.side_optimized = side_optimized
 
     def get_name(self, url, num):
-        """ Check existence the file by name """
+        """Check existence the file by name"""
 
-        for i in os.listdir(f'{self.path}{url}/'):
+        for i in os.listdir(f"{self.path}{url}/"):
             if re.search(rf"^{str(num)}.", i):
                 return i
 
@@ -34,64 +40,60 @@ class FileUploader:
 
     @staticmethod
     def max_name(url):
-        """ Next file ID """
+        """Next file ID"""
 
         files = os.listdir(url)
         count = 0
 
         for i in files:
-            j = re.findall(r'\d+', i)
+            j = re.findall(r"\d+", i)
             if len(j) and int(j[0]) > count:
                 count = int(j[0])
 
-        return count+1
+        return count + 1
 
     # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    def image(self, data, encoding='base64', file_format='png'):
-        """ Upload image """
+    def image(self, data, encoding="base64", file_format="png"):
+        """Upload image"""
 
         if data is None:
             return data
 
-        if encoding != 'bytes':
+        if encoding != "bytes":
             try:
-                match = re.search(r'^\w+\.\w+$', data)
+                match = re.search(r"^\w+\.\w+$", data)
             except TypeError as e:
-                raise ErrorUpload('image') from e
+                raise ErrorUpload("image") from e
 
             if match:
                 return data
 
         url = self.path
-        url_opt = url + 'opt/'
+        url_opt = url + "opt/"
 
-        if encoding == 'base64':
+        if encoding == "base64":
             try:
-                file_format = re.search(r'data:image/.+;base64,', data) \
-                                .group()[11:-8]
-                b64 = data.split(',')[1]
+                file_format = re.search(r"data:image/.+;base64,", data).group()[11:-8]
+                b64 = data.split(",")[1]
                 data = base64.b64decode(b64)
             except (AttributeError, binascii.Error) as e:
-                raise ErrorUpload('image') from e
+                raise ErrorUpload("image") from e
 
         file_id = self.max_name(url)
-        offset = '0' * max(0, 10-len(str(file_id)))
-        payload = ''.join(
-            random.choice(string.ascii_lowercase)
-            for _ in range(6)
-        )
-        file_id = f'{offset}{file_id}{payload}'
+        offset = "0" * max(0, 10 - len(str(file_id)))
+        payload = "".join(random.choice(string.ascii_lowercase) for _ in range(6))
+        file_id = f"{offset}{file_id}{payload}"
         file_format = file_format.lower()
-        file_name = f'{file_id}.{file_format}'
+        file_name = f"{file_id}.{file_format}"
         url += file_name
         url_opt += file_name
 
         # TODO: check image data before save
-        with open(url, 'wb') as file:
+        with open(url, "wb") as file:
             try:
                 file.write(data)
             except TypeError as e:
-                raise ErrorUpload('image') from e
+                raise ErrorUpload("image") from e
 
         # EXIF data
         # pylint: disable=protected-access
@@ -100,14 +102,14 @@ class FileUploader:
             try:
                 img = Image.open(url)
             except UnidentifiedImageError as e:
-                raise ErrorUpload('image') from e
+                raise ErrorUpload("image") from e
 
             orientation = None
 
             # pylint: disable=consider-using-dict-items
             # pylint: disable=consider-iterating-dictionary
             for orientation in ExifTags.TAGS.keys():
-                if ExifTags.TAGS[orientation] == 'Orientation':
+                if ExifTags.TAGS[orientation] == "Orientation":
                     break
 
             exif = dict(img._getexif().items())
@@ -143,7 +145,7 @@ class FileUploader:
         return file_name
 
     def reimg(self, text):
-        """ Load all images images from the text to the server """
+        """Load all images images from the text to the server"""
 
         if text is None:
             return text
@@ -151,8 +153,7 @@ class FileUploader:
         # Base64
         while True:
             fragment = re.search(
-                r'<img [^>]*src=[^>]+data:image/\w+;base64,[^\'">]+=[^>]+>',
-                text
+                r'<img [^>]*src=[^>]+data:image/\w+;base64,[^\'">]+=[^>]+>', text
             )
 
             if fragment is None:
@@ -165,9 +166,12 @@ class FileUploader:
 
             meta_first, meta_last = meta_fragment.span()
             data = self.image(meta_fragment.group())
-            text = text[:first+meta_first] \
-                + self.prefix + data \
-                + text[first+meta_last:]
+            text = (
+                text[: first + meta_first]
+                + self.prefix
+                + data
+                + text[first + meta_last :]
+            )
 
         # External links
         while True:
@@ -179,32 +183,27 @@ class FileUploader:
                 break
 
             first, _ = fragment.span()
-            meta_fragment = re.search(
-                r'http[^\'">]+', fragment.group()
-            )
+            meta_fragment = re.search(r'http[^\'">]+', fragment.group())
 
             meta_first, meta_last = meta_fragment.span()
             link = meta_fragment.group()
             data = requests.get(link, timeout=10).content
 
-            if '.' in link:
-                file_format = link.split('.')[-1]
+            if "." in link:
+                file_format = link.split(".")[-1]
 
-                if (
-                    'latex' in file_format
-                    or '/' in file_format
-                    or len(file_format) > 5
-                ):
-                    file_format = 'png'
+                if "latex" in file_format or "/" in file_format or len(file_format) > 5:
+                    file_format = "png"
 
             else:
                 file_format = None
 
-            data = self.image(data, encoding='bytes', file_format=file_format)
+            data = self.image(data, encoding="bytes", file_format=file_format)
             text = (
-                text[:first+meta_first]
-                + self.prefix + data
-                + text[first+meta_last:]
+                text[: first + meta_first]
+                + self.prefix
+                + data
+                + text[first + meta_last :]
             )
 
         return text
