@@ -1,6 +1,0 @@
-# NOTE: For MacOS: brew install libjpeg
-
-pymongo==4.10.1
-pillow==11.1.0
-requests==2.32.3
-pydantic==2.9.2

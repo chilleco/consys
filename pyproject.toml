@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=80.9.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "consys"
+dynamic = ["version"]
+description = "Base object model for Python"
+readme = "README.md"
+requires-python = ">=3.10, <4"
+license = { file = "LICENSE" }
+authors = [{ name = "Alex Poloz", email = "alexypoloz@gmail.com" }]
+keywords = [
+    "base",
+    "object",
+    "model",
+    "oop",
+    "orm",
+    "python",
+    "mongodb",
+    "files",
+    "uploading",
+    "handlers",
+    "errors",
+    "types",
+    "checking",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pymongo>=4.15.4,<5",
+    "pillow>=12,<13",
+    "requests>=2.32.5,<3",
+    "pydantic>=2.12.5,<3",
+]
+
+[project.urls]
+Source = "https://github.com/chilleco/consys"
+Homepage = "https://github.com/chilleco/consys"
+
+[project.optional-dependencies]
+dev = [
+    "pylint==4.0.4",
+    "pytest==9.0.1",
+    "pytest-asyncio==1.3.0",
+    "libdev==0.96",
+    "twine==6.2.0",
+    "build>=1.2.2",
+    "setuptools>=80.9.0",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "consys.__version__" }
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]

@@ -2,19 +2,13 @@ PYTHON := env/bin/python
 
 setup:
 	python3 -m venv env
-	$(PYTHON) -m pip install -r requirements.txt
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install .
 
-setup-tests:
-	make setup
-	$(PYTHON) -m pip install -r tests/requirements.txt
-
-setup-release:
+setup-dev:
 	python3 -m venv env
-	$(PYTHON) -m pip install -r requirements.dev.txt
-
-setup-all:
-	make setup-tests
-	make setup-release
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install ".[dev]"
 
 test-lint-all:
 	find . -type f -name '*.py' \
@@ -53,7 +47,7 @@ test:
 
 release:
 	make clean
-	$(PYTHON) setup.py sdist bdist_wheel
+	$(PYTHON) -m build
 	sudo $(PYTHON) -m twine upload dist/*
 
 clean:

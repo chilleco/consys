@@ -40,6 +40,11 @@ setup(
         "Topic :: Software Development :: Libraries :: Application Frameworks",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Operating System :: OS Independent",
     ],
     keywords=(
@@ -47,13 +52,24 @@ setup(
         "handlers, errors, types, checking"
     ),
     packages=find_packages(exclude=("tests",)),
-    python_requires=">=3.7, <4",
+    python_requires=">=3.10, <4",
     install_requires=[
-        "pymongo>=4.10,<5",
-        "pillow>=10",
-        "requests",
-        "pydantic>=2.8,<3",
+        "pymongo>=4.15.4,<5",
+        "pillow>=12,<13",
+        "requests>=2.32.5,<3",
+        "pydantic>=2.12.5,<3",
     ],
+    extras_require={
+        "dev": [
+            "pylint==4.0.4",
+            "pytest==9.0.1",
+            "pytest-asyncio==1.3.0",
+            "libdev==0.96",
+            "twine==6.2.0",
+            "build>=1.2.2",
+            "setuptools>=80.9.0",
+        ],
+    },
     project_urls={
         "Source": "https://github.com/chilleco/consys",
     },
